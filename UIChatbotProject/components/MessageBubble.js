@@ -6,7 +6,8 @@ import {
     StyleSheet,
     View,
     Text,
-    Image
+    Image,
+    ScrollView
 } from 'react-native'
 // Import react-native-size-matters
 import { moderateScale } from 'react-native-size-matters';
@@ -20,7 +21,8 @@ import { moderateScale } from 'react-native-size-matters';
 class MessageBubble extends React.Component {
     render(){
         return(
-            <View style={[
+            
+            <ScrollView  vertical={true} showsVerticalScrollIndicator={false} style={[
                 styles.message,
                  this.props.mine ? styles.mine : styles.not_mine]}>    
                 <View 
@@ -62,7 +64,7 @@ class MessageBubble extends React.Component {
                     ]}>
                     </View>
                 </View>    
-            </View>
+            </ScrollView>
         )
     }
 }
@@ -73,7 +75,7 @@ const styles = StyleSheet.create({
     
     message: {
         flexDirection: 'row',
-        marginVertical: moderateScale(7,2)
+        marginVertical: moderateScale(7,2),
     },
     mine: {
         marginLeft: 20,
@@ -83,14 +85,15 @@ const styles = StyleSheet.create({
         marginRight:20
     },
     cloudMine: {
+        top:5,
+        bottom:5,
         maxWidth: moderateScale(250,2),
         paddingHorizontal: moderateScale(10,2),
         paddingTop:moderateScale(5,2),
         paddingBottom: (7,2),
         borderTopRightRadius:30,
         borderBottomRightRadius:30,
-        borderBottomLeftRadius:30
-
+        borderBottomLeftRadius:30,
     },
     cloudNotMine: {
         maxWidth: moderateScale(250,2),
@@ -103,7 +106,7 @@ const styles = StyleSheet.create({
     },
     text: { 
        color: 'white',
-     fontWeight:'bold',
+        fontWeight:'bold',
         paddingBottom: 15,
         fontSize: 20,
         lineHeight:22

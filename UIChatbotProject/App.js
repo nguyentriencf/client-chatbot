@@ -10,22 +10,71 @@ class App extends React.Component {
   return (
     
    <>
-   <View style={styles.backGround}>
-   <SafeAreaView>
+   
+   <SafeAreaView style={{flex:1}}>
+     <View style= {styles.container}>
      <MessageBubble
       mine
-      text="Hello"
+      text="Hello, Nguyễn Mậu Tuấn"
       />
      <MessageBubble
      not_mine
-      text="Hi"
+      text="Hi, Huỳnh Thiên Tâns"
       />
       <MessageBubble
        mine
-      text="Hi"
+      text="Hi bottom:10,You can now view UIChatbotProject in the browser"
       />
+       <MessageBubble
+      mine
+      text="Hello, Nguyễn Mậu Tuấn"
+      />
+     <MessageBubble
+     not_mine
+      text="Hi, Huỳnh Thiên Tâns"
+      />
+      <MessageBubble
+       mine
+      text="Hi bottom:10,You can now view UIChatbotProject in the browser"
+      />
+       <MessageBubble
+      mine
+      text="Hello, Nguyễn Mậu Tuấn"
+      />
+     <MessageBubble
+     not_mine
+      text="Hi, Huỳnh Thiên Tâns"
+      />
+      <MessageBubble
+       mine
+      text="Hi bottom:10,You can now view UIChatbotProject in the browser"
+      />
+       <MessageBubble
+      mine
+      text="Hello, Nguyễn Mậu Tuấn"
+      />
+     <MessageBubble
+     not_mine
+      text="Hi, Huỳnh Thiên Tâns"
+      />
+      <MessageBubble
+       mine
+      text="Hi bottom:10,You can now view UIChatbotProject in the browser"
+      />
+       <MessageBubble
+      mine
+      text="Hello, Nguyễn Mậu Tuấn"
+      />
+     <MessageBubble
+     not_mine
+      text="Hi, Huỳnh Thiên Tâns"
+      />
+      <MessageBubble
+       mine
+      text="Hi bottom:10,You can now view UIChatbotProject in the browser"
+      />
+      </View>
    </SafeAreaView>
-   </View>
    </>
   )
   }
@@ -34,9 +83,10 @@ class App extends React.Component {
 
 export default App
 const styles = StyleSheet.create({
-  backGround:{
+  container:{
     backgroundColor:'#1D1F2C',
     flex: 1,
     resizeMode: 'cover'
   }
+
 })
