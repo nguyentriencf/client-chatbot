@@ -3,6 +3,7 @@ import React from 'react';
 import {SafeAreaView} from 'react-native'
 import { StyleSheet, Text, View,ScrollView } from 'react-native';
 import MessageBubble from './components/MessageBubble';
+import Input from './components/Input';
 
 class App extends React.Component {
   render() {
@@ -74,6 +75,8 @@ class App extends React.Component {
       text="Hi bottom:10,You can now view UIChatbotProject in the browser"
       />
       </View>
+      <Input />
+
    </SafeAreaView>
    </>
   )
@@ -88,5 +91,4 @@ const styles = StyleSheet.create({
     flex: 1,
     resizeMode: 'cover'
   }
-
 })
