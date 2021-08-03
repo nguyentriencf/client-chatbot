@@ -71,7 +71,7 @@ class App extends React.Component {
       text="Hi, Huỳnh Thiên Tâns"
       />
       <MessageBubble
-       mine
+      not_mine
       text="Hi bottom:10,You can now view UIChatbotProject in the browser"
       />
       </View>

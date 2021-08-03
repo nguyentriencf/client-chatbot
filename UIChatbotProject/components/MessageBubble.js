@@ -29,7 +29,7 @@ class MessageBubble extends React.Component {
                 style={[
                     this.props.mine ? styles.cloudMine : styles.cloudNotMine,
                     {
-                        backgroundColor: this.props.mine ? '#2A2A37':'#8961D8'
+                        backgroundColor: this.props.mine ? '#8961D8':'#2A2A37'
                     }
                 ]}
                 >
@@ -77,16 +77,16 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginVertical: moderateScale(7,2),
     },
-    mine: {
+    not_mine: {
         marginLeft: 20,
     },
-    not_mine: {
+    mine: {
         alignSelf:'flex-end',
         marginRight:20
     },
-    cloudMine: {
-        top:5,
-        bottom:5,
+    cloudNotMine: {
+        // top:5,
+        // bottom:5,
         maxWidth: moderateScale(250,2),
         paddingHorizontal: moderateScale(10,2),
         paddingTop:moderateScale(5,2),
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
         borderBottomRightRadius:30,
         borderBottomLeftRadius:30,
     },
-    cloudNotMine: {
+    cloudMine: {
         maxWidth: moderateScale(250,2),
         paddingHorizontal: moderateScale(10,2),
         paddingTop:moderateScale(5,2),
@@ -135,5 +135,4 @@ const styles = StyleSheet.create({
     arrow_right: {
         right: moderateScale(-6,0.5)
     }
-
 })

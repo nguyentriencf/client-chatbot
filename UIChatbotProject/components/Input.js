@@ -18,7 +18,7 @@ const pressed = ()=>{
 class Input extends React.Component {
   render(){
     return(
-        <View>
+        <View style={styles.container}>
           <Ionicons />
             <TextInput placeholder='Some text'
            style={styles.input}>
@@ -35,24 +35,21 @@ export default Input
 const styles = StyleSheet.create({
   container:{
     flexDirection:'row',
-    alignSelf:'center',
-    alignItems:'center',
+    alignSelf:'righgt',
+    alignItems:'right',
     width:'85%',
     position:'absolute',
     bottom:10,
     paddingHorizontal:20,
     paddingVertical:10,
-    borderRadius:30,
-    borderColor:'#ffffff'
+    borderRadius:60,
+    backgroundColor:'#30384B', 
   },
   input: {
       fontFamily:'Montserrat_600SemiBold',
       fontSize:20,
-      paddingHorizontal:10,
       color:'white',
-      flex:2,
-      backgroundColor:'#30384B',
-      
+      flex:1,
   }
 })
 
