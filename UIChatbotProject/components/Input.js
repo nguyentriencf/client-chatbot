@@ -24,10 +24,9 @@ class Input extends React.Component {
            style={styles.input}>
             </TextInput>
             <TouchableOpacity onPress={pressed}>
-              <Ionicons color='White' size={20}/>
+              <Ionicons color='White' size={20}/> 
             </TouchableOpacity>
         </View>
-        
     )
 }
 }
@@ -35,8 +34,8 @@ export default Input
 const styles = StyleSheet.create({
   container:{
     flexDirection:'row',
-    alignSelf:'righgt',
-    alignItems:'right',
+    // alignSelf:'right',
+    // alignItems:'right',
     width:'85%',
     position:'absolute',
     bottom:10,
@@ -44,12 +43,14 @@ const styles = StyleSheet.create({
     paddingVertical:10,
     borderRadius:60,
     backgroundColor:'#30384B', 
+    justifyContent: 'center',
   },
   input: {
       fontFamily:'Montserrat_600SemiBold',
       fontSize:20,
       color:'white',
       flex:1,
+      borderColor:'transparent'
   }
 })
 

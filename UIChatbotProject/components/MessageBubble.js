@@ -21,8 +21,9 @@ import { moderateScale } from 'react-native-size-matters';
 class MessageBubble extends React.Component {
     render(){
         return(
-            
-            <ScrollView  vertical={true} showsVerticalScrollIndicator={false} style={[
+
+          
+            <View   style={[
                 styles.message,
                  this.props.mine ? styles.mine : styles.not_mine]}>    
                 <View 
@@ -64,7 +65,7 @@ class MessageBubble extends React.Component {
                     ]}>
                     </View>
                 </View>    
-            </ScrollView>
+         </View>
         )
     }
 }
@@ -72,7 +73,7 @@ class MessageBubble extends React.Component {
 export default  MessageBubble
 
 const styles = StyleSheet.create({
-    
+ 
     message: {
         flexDirection: 'row',
         marginVertical: moderateScale(7,2),

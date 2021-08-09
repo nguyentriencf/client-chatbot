@@ -8,12 +8,13 @@ import Input from './components/Input';
 class App extends React.Component {
   render() {
     
-  return (
-    
+  return (  
    <>
-   
-   <SafeAreaView style={{flex:1}}>
-     <View style= {styles.container}>
+   <SafeAreaView style= {styles.container}>
+    <View style={styles.header} >
+    </View>   
+     <View style={styles.body}>
+       <ScrollView style={styles.scrollView}>
      <MessageBubble
       mine
       text="Hello, Nguyễn Mậu Tuấn"
@@ -34,11 +35,18 @@ class App extends React.Component {
      not_mine
       text="Hi, Huỳnh Thiên Tâns"
       />
-      <MessageBubble
-       mine
-      text="Hi bottom:10,You can now view UIChatbotProject in the browser"
+        <MessageBubble
+     not_mine
+      text="Hi, Huỳnh Thiên Tâns"
       />
-       <MessageBubble
+        <MessageBubble
+     not_mine
+      text="Hi, Huỳnh Thiên Tâns"
+      />  <MessageBubble
+     not_mine
+      text="Hi, Huỳnh Thiên Tâns"
+      />
+      <MessageBubble
       mine
       text="Hello, Nguyễn Mậu Tuấn"
       />
@@ -54,41 +62,42 @@ class App extends React.Component {
       mine
       text="Hello, Nguyễn Mậu Tuấn"
       />
-     <MessageBubble
-     not_mine
-      text="Hi, Huỳnh Thiên Tâns"
-      />
-      <MessageBubble
-       mine
-      text="Hi bottom:10,You can now view UIChatbotProject in the browser"
-      />
-       <MessageBubble
-      mine
-      text="Hello, Nguyễn Mậu Tuấn"
-      />
-     <MessageBubble
-     not_mine
-      text="Hi, Huỳnh Thiên Tâns"
-      />
-      <MessageBubble
-      not_mine
-      text="Hi bottom:10,You can now view UIChatbotProject in the browser"
-      />
-      </View>
-      <Input />
+      </ScrollView>
 
+       </View>
+       <View style={styles.footer}>
+         <Input/>
+         </View>
+      
    </SafeAreaView>
    </>
   )
   }
 
 }
-
 export default App
 const styles = StyleSheet.create({
   container:{
-    backgroundColor:'#1D1F2C',
+   backgroundColor:'#1D1F2C',
     flex: 1,
-    resizeMode: 'cover'
-  }
+    resizeMode: 'cover',
+    justifyContent:'center'
+  },
+  footer: {
+    flex:1,
+    backgroundColor:'#1D1F2C'
+  },
+  header: {
+    flex:1,
+    backgroundColor:'#1D1F2C'
+  },
+  body: {
+    flex:10,
+    backgroundColor:'#1D1F2C',
+  },
+   scrollView: {
+    marginHorizontal: 20,
+    // showsVerticalScrollIndicator:false
+  },
+
 })
