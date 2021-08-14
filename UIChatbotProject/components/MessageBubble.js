@@ -1,6 +1,6 @@
 // import React 
 import React, { useState } from 'react'
-
+import { LinearGradient } from 'expo-linear-gradient';
 //import react native Component
 import {
     StyleSheet,
@@ -23,25 +23,13 @@ class MessageBubble extends React.Component {
             <View style={[
                 styles.message,
                  this.props.mine ? styles.mine : styles.not_mine]}>    
-                <View 
+                <LinearGradient 
+                 start={[0.5, 0.7,0.9]}
+                colors={ this.props.mine ?['#1F2430', '#1E232F', '#272C3A'] : ['#6C64D6', '#7169E2', '#5E56BD'] } 
                 style={[
-                    this.props.mine ? styles.cloudMine : styles.cloudNotMine,
-                    {
-                        backgroundColor: this.props.mine ? '#2A2A37':'#8961D8'
-                    }
+                    this.props.mine ? styles.cloudMine : styles.cloudNotMine        
                 ]}
                 >
-                    {
-                        this.props.image
-                        ?
-                        <Image 
-                        style={{alignSelf: this.props.mine? 'flex-start' : 'flex-end'}}
-                        borderRadius={10}
-                        source= {this.props.image}
-                        />
-                        :
-                        null
-                    }
                       {
                         this.props.text
                         ?
@@ -61,7 +49,8 @@ class MessageBubble extends React.Component {
                         this.props.mine ? styles.arrow_left_container: styles.arrow_right_container
                     ]}>
                     </View>
-                </View>    
+                    
+                </LinearGradient>    
             </View>
         )
     }
@@ -76,13 +65,14 @@ const styles = StyleSheet.create({
         marginVertical: moderateScale(7,2)
     },
     mine: {
-        marginLeft: 20,
+        marginLeft: 5,
     },
     not_mine: {
         alignSelf:'flex-end',
-        marginRight:20
+        marginRight:5
     },
     cloudMine: {
+
         maxWidth: moderateScale(250,2),
         paddingHorizontal: moderateScale(10,2),
         paddingTop:moderateScale(5,2),
@@ -104,9 +94,9 @@ const styles = StyleSheet.create({
     text: { 
        color: 'white',
      fontWeight:'bold',
-        paddingBottom: 15,
-        fontSize: 20,
-        lineHeight:22
+       paddingVertical:'flex-end',
+        fontSize: 15,
+        lineHeight:35
        
     },
     arrow_container: {
