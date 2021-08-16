@@ -1,56 +1,79 @@
-import React from 'react';
-import {View, StyleSheet, TextInput, TouchableOpacity} from 'react-native';
-import { Feather, Ionicons  } from '@expo/vector-icons';
+import React from "react";
+import { View, StyleSheet, TextInput } from "react-native";
+import { IconButton, Colors } from "react-native-paper";
+import { connect } from "react-redux";
 
-// const Input = ({inputMessage, onSendMessage, setMessage}) => {
-//     return(
-//         <View style={styles.container}>
-//             <TextInput placeholder='Some text' value={inputMessage}
-//             onChangeText={setMessage} style={styles.input}>
-//             </TextInput>
-//         </View>
-        
-//     )
-// }
-const pressed = ()=>{
-  console.log("Nguyen Trien ");
-}
 class Input extends React.Component {
-  render(){
-    return(
-        <View style={styles.container}>
-          <Ionicons />
-            <TextInput placeholder='Some text'
-           style={styles.input}>
-            </TextInput>
-            <TouchableOpacity onPress={pressed}>
-              <Ionicons color='White' size={20}/> 
-            </TouchableOpacity>
-        </View>
-    )
+  constructor(props) {
+    super(props);
+    this.state = {
+      TextInputValue: "",
+    };
+  }
+  OnInputText = (TextInputValue) => {
+    if (TextInputValue.trim() != 0) {
+      this.props.dispatch({ type: "SHOW" });
+      this.setState({ TextInputValue: TextInputValue });
+    } else {
+      this.props.dispatch({ type: "NONE" });
+      this.setState({ TextInputValue: TextInputValue });
+    }
+  };
+
+  render() {
+    return (
+      <View style={styles.container}>
+        <TextInput
+          placeholder="Some text"
+          style={styles.input}
+          onChangeText={(TextInputValue) => {
+            this.OnInputText(TextInputValue);
+          }}
+        ></TextInput>
+
+        <IconButton
+          style={styles.micro}
+          icon="microphone-outline"
+          color={Colors.white}
+          size={25}
+          onPress={() => alert("Pressed")}
+        />
+      </View>
+    );
+  }
 }
-}
-export default Input
+export default connect()(Input);
 const styles = StyleSheet.create({
-  container:{
-    flexDirection:'row',
-    // alignSelf:'right',
-    // alignItems:'right',
-    width:'85%',
-    position:'absolute',
-    bottom:10,
-    paddingHorizontal:20,
-    paddingVertical:10,
-    borderRadius:60,
-    backgroundColor:'#30384B', 
-    justifyContent: 'center',
+  container: {
+    flexDirection: "row",
+    // alignSelf: "right",
+    alignItems: "center",
+    width: "70%",
+    maxWidth: "70%",
+    position: "absolute",
+    bottom: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 60,
+    backgroundColor: "#30384B",
+    justifyContent: "center",
+    marginHorizontal: 40,
   },
   input: {
-      fontFamily:'Montserrat_600SemiBold',
-      fontSize:20,
-      color:'white',
-      flex:1,
-      borderColor:'transparent'
-  }
-})
-
+    fontFamily: "Montserrat_600SemiBold",
+    fontSize: 20,
+    maxWidth: "100%",
+    width: "90%",
+    color: "white",
+    borderColor: "transparent",
+    marginRight: 40,
+  },
+  micro: {
+    flexDirection: "row",
+    top: -3,
+    position: "absolute",
+    right: 0,
+    borderRadius: 50,
+    backgroundColor: "#434959",
+  },
+});
