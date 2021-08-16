@@ -1,65 +1,48 @@
-// import React 
-import React, { useState } from 'react'
-import { LinearGradient } from 'expo-linear-gradient';
-//import react native Component
-import {
-    StyleSheet,
-    View,
-    Text,
-    Image
-} from 'react-native'
-// Import react-native-size-matters
-import { moderateScale } from 'react-native-size-matters';
 
-// Props info list 
-// 1. mine (bool) => render blue bubble on right 
+// import React
+import React, { useState } from "react";
+import { LinearGradient } from "expo-linear-gradient";
+
+//import react native Component
+import { StyleSheet, View, Text, Image } from "react-native";
+// Import react-native-size-matters
+import { moderateScale } from "react-native-size-matters";
+
+// Props info list
+// 1. mine (bool) => render blue bubble on right
 // 2. text (string) => renders text message
 // 3. image (file image) => render image inside bubble
 
 // Declare component
 class MessageBubble extends React.Component {
-    render(){
-        return(
-            <View style={[
-                styles.message,
-                 this.props.mine ? styles.mine : styles.not_mine]}>    
-                <LinearGradient 
-                 start={[0.5, 0.7,0.9]}
-                colors={ this.props.mine ?['#1F2430', '#1E232F', '#272C3A'] : ['#6C64D6', '#7169E2', '#5E56BD'] } 
-                style={[
-                    this.props.mine ? styles.cloudMine : styles.cloudNotMine        
-                ]}
-                >
-                      {
-                        this.props.text
-                        ?
-                        <Text 
-                            style = {[
-                             styles.text
-                        ]}
-                        >
-                            {this.props.text}
-                        </Text>
-                        :
-                        null
-                    }
-                    <View
-                    style={[
-                        styles.arrow_container,
-                        this.props.mine ? styles.arrow_left_container: styles.arrow_right_container
-                    ]}>
-                    </View>
-                    
-                </LinearGradient>    
-            </View>
-        )
-    }
+  render() {
+    return (
+      <View
+        style={[
+          styles.message,
+          this.props.mine ? styles.mine : styles.not_mine,
+        ]}
+      >
+        <LinearGradient
+          start={[0.5, 0.7, 0.9]}
+          colors={
+            this.props.mine
+              ? ["#1F2430", "#1E232F", "#272C3A"]
+              : ["#6C64D6", "#7169E2", "#5E56BD"]
+          }
+          style={[this.props.mine ? styles.cloudMine : styles.cloudNotMine]}
+        >
+          {this.props.text ? (
+            <Text style={[styles.text]}>{this.props.text}</Text>
+          ) : null}
+        </LinearGradient>
+      </View>
+    );
+  }
 }
 
-export default  MessageBubble
-
-const styles = StyleSheet.create({
-    
+export default MessageBubble;
+const styles = StyleSheet.create({  
     message: {
         flexDirection: 'row',
         marginVertical: moderateScale(7,2)
@@ -122,5 +105,5 @@ const styles = StyleSheet.create({
     arrow_right: {
         right: moderateScale(-6,0.5)
     }
-
 })
+
