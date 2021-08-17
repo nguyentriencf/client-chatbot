@@ -1,6 +1,5 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { SafeAreaView } from "react-native";
 import {
   StyleSheet,
   Text,
@@ -8,6 +7,8 @@ import {
   ScrollView,
   Animated,
   Easing,
+  KeyboardAvoidingView,
+  Platform
 } from "react-native";
 import MessageBubble from "./components/MessageBubble";
 import { BlurView } from "expo-blur";
@@ -56,48 +57,45 @@ class App extends React.Component {
   render() {
     return (
       <Provider store={store}>
-        <>
-          <LinearGradient
-            colors={["#1E222D", "#1E212C", "#1C1F2A"]}
-            style={styles.container}
-          >
-            <View style={styles.header}>
-              <Text style={styles.textHeader}>Dlu bot</Text>
-              <View style={styles.ViewOnline}>
-                <Entypo name="dot-single" size={34} color="#A0DEAC" />
-                <Text style={styles.textOnline}>Online</Text>
-              </View>
+        <LinearGradient
+          style={styles.container}
+          colors={["#1E222D", "#1E212C", "#1C1F2A"]}
+        >
+        <KeyboardAvoidingView
+          style={styles.voidingView}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <View style={styles.header}>
+            <Text style={styles.textHeader}>Dlu bot</Text>
+            <View style={styles.ViewOnline}>
+              <Entypo name="dot-single" size={34} color="#A0DEAC" />
+              <Text style={styles.textOnline}>Online</Text>
             </View>
+          </View>
+          <View style={styles.body}>
+            <ScrollView
+              // style={styles.scrollView}
+              showsHorizontalScrollIndicator={false}
+            >
+              <MessageBubble mine text="Hello, Nguyễn Mậu Tuấn" />
+              <MessageBubble not_mine text="Hi, Huỳnh Thiên Tâns" />
+              <MessageBubble
+                mine
+                text="Hi bottom:10,You can now view UIChatbotProject in the browser"
+              />
+              <MessageBubble mine text="Hello, Nguyễn Mậu Tuấn" />
+              <MessageBubble not_mine text="Hi, Huỳnh Thiên Tâns" />
+              <MessageBubble not_mine text="Hi, Huỳnh Thiên Tâns" />
+              <MessageBubble mine text="Hello, Nguyễn Mậu Tuấn" />
+            </ScrollView>
+          </View>
 
-            <View style={styles.body}>
-              <ScrollView
-                style={styles.scrollView}
-                showsHorizontalScrollIndicator={false}
-              >
-                <MessageBubble mine text="Hello, Nguyễn Mậu Tuấn" />
-                <MessageBubble not_mine text="Hi, Huỳnh Thiên Tâns" />
-                <MessageBubble
-                  mine
-                  text="Hi bottom:10,You can now view UIChatbotProject in the browser"
-                />
-                <MessageBubble mine text="Hello, Nguyễn Mậu Tuấn" />
-                <MessageBubble not_mine text="Hi, Huỳnh Thiên Tâns" />
-                <MessageBubble not_mine text="Hi, Huỳnh Thiên Tâns" />
-                <MessageBubble not_mine text="Hi, Huỳnh Thiên Tâns" />
-                <MessageBubble not_mine text="Hi, Huỳnh Thiên Tâns" />
-                <MessageBubble mine text="Hello, Nguyễn Mậu Tuấn" />
-
-                <MessageBubble not_mine text="Hi, Huỳnh Thiên Tâns" />
-                <MessageBubble mine text="Hello, Nguyễn Mậu Tuấn" />
-              </ScrollView>
-            </View>
-
-            <BlurView style={styles.footer} tint={"dark"}>
-              <Input />
-              <Send />
-            </BlurView>
-          </LinearGradient>
-        </>
+          <BlurView style={styles.footer} tint={"dark"}>
+            <Input />
+            <Send />
+          </BlurView>
+        </KeyboardAvoidingView>
+        </LinearGradient>
       </Provider>
     );
   }
@@ -105,6 +103,9 @@ class App extends React.Component {
 
 export default App;
 const styles = StyleSheet.create({
+  voidingView: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     resizeMode: "cover",
@@ -112,7 +113,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   footer: {
-    flex: 1,
+    flex: 0.8,
     backgroundColor: "#1D1F2C",
   },
   header: {
@@ -121,8 +122,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   body: {
-    flex: 11,
+    flex: 7.7,
     backgroundColor: "#1D1F2C",
+    padding:10
   },
   scrollView: {
     marginHorizontal: 10,

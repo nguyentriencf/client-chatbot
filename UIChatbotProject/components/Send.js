@@ -35,7 +35,7 @@ class Send extends React.Component {
       <Animated.View
         style={[styles.send, animationStyle, { display: this.props.myValue }]}
       >
-        <IconButton icon="send" color={Colors.white} size={30} />
+        <IconButton icon="send" color={Colors.white} size={30}/>
       </Animated.View>
     );
   }
@@ -49,10 +49,11 @@ export default connect(mapStateToProps)(Send);
 const styles = StyleSheet.create({
   send: {
     flexDirection: "row",
-    marginTop: -1,
+    // marginTop: ,
     marginHorizontal: 20,
     position: "absolute",
     right: 0,
+    bottom:1,
   },
   box: {
     width: 150,

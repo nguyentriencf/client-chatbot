@@ -24,7 +24,7 @@ class Input extends React.Component {
     return (
       <View style={styles.container}>
         <TextInput
-          placeholder="Some text"
+          placeholder="Aa"
           style={styles.input}
           onChangeText={(TextInputValue) => {
             this.OnInputText(TextInputValue);
@@ -35,7 +35,7 @@ class Input extends React.Component {
           style={styles.micro}
           icon="microphone-outline"
           color={Colors.white}
-          size={25}
+          size={23}
           onPress={() => alert("Pressed")}
         />
       </View>
@@ -46,21 +46,19 @@ export default connect()(Input);
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    // alignSelf: "right",
     alignItems: "center",
     width: "70%",
     maxWidth: "70%",
     position: "absolute",
     bottom: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 6,
     borderRadius: 60,
     backgroundColor: "#30384B",
     justifyContent: "center",
     marginHorizontal: 40,
   },
   input: {
-    fontFamily: "Montserrat_600SemiBold",
+    // fontFamily: "Montserrat_600SemiBold",
     fontSize: 20,
     maxWidth: "100%",
     width: "90%",
@@ -70,10 +68,9 @@ const styles = StyleSheet.create({
   },
   micro: {
     flexDirection: "row",
-    top: -3,
     position: "absolute",
-    right: 0,
-    borderRadius: 50,
+    right: -5,
+    borderRadius: 60,
     backgroundColor: "#434959",
   },
 });
