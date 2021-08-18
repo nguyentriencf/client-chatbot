@@ -1,6 +1,6 @@
 
 import React from "react";
-import { StyleSheet, Animated } from "react-native";
+import { StyleSheet, Animated, TouchableOpacity } from "react-native";
 import { IconButton, Colors } from "react-native-paper";
 import { connect } from "react-redux";
 
@@ -32,11 +32,13 @@ class Send extends React.Component {
       this.startAnimation().reset();
     }
     return (
-      <Animated.View
-        style={[styles.send, animationStyle, { display: this.props.myValue }]}
-      >
-        <IconButton icon="send" color={Colors.white} size={30}/>
-      </Animated.View>
+      <TouchableOpacity style={styles.send} >
+        <Animated.View
+          style={[animationStyle, { display: this.props.myValue }]}
+        >
+          <IconButton icon="send" color={Colors.white} size={30} />
+        </Animated.View>
+      </TouchableOpacity>
     );
   }
 }

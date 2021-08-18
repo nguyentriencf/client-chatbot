@@ -8,7 +8,8 @@ import {
   Animated,
   Easing,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  
 } from "react-native";
 import MessageBubble from "./components/MessageBubble";
 import { BlurView } from "expo-blur";
@@ -40,6 +41,10 @@ const io = require("socket.io-client/dist/socket.io.js");
 class App extends React.Component {
   constructor(props) {
     super(props);
+    this.state={viewArray:[], disableButton:false, message:[]};
+    this.animatedValue = new Animated.Value(0);
+    this.arrayValueIndex =0;
+
     this.socket = io("https://chatbot-dlu.herokuapp.com", {
       transports: ["websocket", "polling", "flashsocket"],
       jsonp: false,
@@ -54,7 +59,41 @@ class App extends React.Component {
     });
   }
 
+  addNewViewFunction = () => {
+    this.animatedValue.setValue(0);
+    let newAddedViewValue = {arrayValueIndex:this.arrayValueIndex}
+    this.setState({disableButton:true,message:[{mine,text:'hello'}],
+      viewArray:[...this.state.viewArray,newAddedViewValue]},
+      () =>{
+        Animated.timing(
+          this.animatedValue,
+          {
+            toValue:1,
+            duration:400,
+            useNativeDriver:true
+          }
+        ).start(() =>
+        {
+          this.arrayValueIndex +=1;
+          this.setState({disableButton:false})
+        })
+      })
+  }
+
   render() {
+    const AnimationValue = this.animatedValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [-59, 0],
+    });
+    let renderAnimateView = this.state.viewArray.map((value,key)=>
+    {
+        return (
+          <Animated.View key={key}>
+            <MessageBubble {...this.state.message} />
+          </Animated.View>
+        );
+    });
+
     return (
       <Provider store={store}>
         <LinearGradient
@@ -74,19 +113,9 @@ class App extends React.Component {
           </View>
           <View style={styles.body}>
             <ScrollView
-              // style={styles.scrollView}
               showsHorizontalScrollIndicator={false}
             >
-              <MessageBubble mine text="Hello, Nguyễn Mậu Tuấn" />
-              <MessageBubble not_mine text="Hi, Huỳnh Thiên Tâns" />
-              <MessageBubble
-                mine
-                text="Hi bottom:10,You can now view UIChatbotProject in the browser"
-              />
-              <MessageBubble mine text="Hello, Nguyễn Mậu Tuấn" />
-              <MessageBubble not_mine text="Hi, Huỳnh Thiên Tâns" />
-              <MessageBubble not_mine text="Hi, Huỳnh Thiên Tâns" />
-              <MessageBubble mine text="Hello, Nguyễn Mậu Tuấn" />
+              {renderAnimateView}
             </ScrollView>
           </View>
 
