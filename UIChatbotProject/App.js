@@ -41,7 +41,7 @@ const io = require("socket.io-client/dist/socket.io.js");
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state={viewArray:[], disableButton:false, message:[]};
+    this.state={viewArray:[], disableButton:false};
     this.animatedValue = new Animated.Value(0);
     this.arrayValueIndex =0;
 
@@ -62,7 +62,7 @@ class App extends React.Component {
   addNewViewFunction = () => {
     this.animatedValue.setValue(0);
     let newAddedViewValue = {arrayValueIndex:this.arrayValueIndex}
-    this.setState({disableButton:true,message:[{mine,text:'hello'}],
+    this.setState({disableButton:true,
       viewArray:[...this.state.viewArray,newAddedViewValue]},
       () =>{
         Animated.timing(
@@ -89,7 +89,7 @@ class App extends React.Component {
     {
         return (
           <Animated.View key={key}>
-            <MessageBubble {...this.state.message} />
+            <MessageBubble mine text="hello"/>
           </Animated.View>
         );
     });
@@ -100,30 +100,32 @@ class App extends React.Component {
           style={styles.container}
           colors={["#1E222D", "#1E212C", "#1C1F2A"]}
         >
-        <KeyboardAvoidingView
-          style={styles.voidingView}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-          <View style={styles.header}>
-            <Text style={styles.textHeader}>Dlu bot</Text>
-            <View style={styles.ViewOnline}>
-              <Entypo name="dot-single" size={34} color="#A0DEAC" />
-              <Text style={styles.textOnline}>Online</Text>
+          <KeyboardAvoidingView
+            style={styles.voidingView}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+          >
+            <View style={styles.header}>
+              <Text style={styles.textHeader}>Dlu bot</Text>
+              <View style={styles.ViewOnline}>
+                <Entypo name="dot-single" size={34} color="#A0DEAC" />
+                <Text style={styles.textOnline}>Online</Text>
+              </View>
             </View>
-          </View>
-          <View style={styles.body}>
-            <ScrollView
-              showsHorizontalScrollIndicator={false}
-            >
-              {renderAnimateView}
-            </ScrollView>
-          </View>
+            <View style={styles.body}>
+              <ScrollView showsHorizontalScrollIndicator={false}>
+                {renderAnimateView}
+              </ScrollView>
+            </View>
 
-          <BlurView style={styles.footer} tint={"dark"}>
-            <Input />
-            <Send />
-          </BlurView>
-        </KeyboardAvoidingView>
+            <BlurView style={styles.footer} tint={"dark"}>
+              <Input />
+              <Send
+                {...this.props}
+                disabledBtn={this.state.disableButton}
+                addView={this.addNewViewFunction()}
+              />
+            </BlurView>
+          </KeyboardAvoidingView>
         </LinearGradient>
       </Provider>
     );

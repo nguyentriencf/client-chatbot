@@ -5,6 +5,10 @@ import { IconButton, Colors } from "react-native-paper";
 import { connect } from "react-redux";
 
 class Send extends React.Component {
+  constructor(props){
+    super(props)
+    const { disabledBtn, addView} = props;
+  }
   state = {
     animation: new Animated.Value(0),
   };
@@ -32,7 +36,11 @@ class Send extends React.Component {
       this.startAnimation().reset();
     }
     return (
-      <TouchableOpacity style={styles.send} >
+      <TouchableOpacity
+        style={styles.send}
+        disabled={disabledBtn}
+        onPress={addView}
+      >
         <Animated.View
           style={[animationStyle, { display: this.props.myValue }]}
         >
