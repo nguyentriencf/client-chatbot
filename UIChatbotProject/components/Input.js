@@ -6,17 +6,12 @@ import { connect } from "react-redux";
 class Input extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      TextInputValue: "",
-    };
   }
   OnInputText = (TextInputValue) => {
     if (TextInputValue.trim() != 0) {
-      this.props.dispatch({ type: "SHOW" });
-      this.setState({ TextInputValue: TextInputValue });
+      this.props.dispatch({ type: "SHOW" }); 
     } else {
-      this.props.dispatch({ type: "NONE" });
-      this.setState({ TextInputValue: TextInputValue });
+      this.props.dispatch({ type: "NONE" }); 
     }
   };
 
@@ -28,7 +23,9 @@ class Input extends React.Component {
           style={styles.input}
           onChangeText={(TextInputValue) => {
             this.OnInputText(TextInputValue);
+            console.log(TextInputValue);
           }}
+          // value={this.props.myMessage.text}
         ></TextInput>
 
         <IconButton
@@ -42,7 +39,13 @@ class Input extends React.Component {
     );
   }
 }
-export default connect()(Input);
+
+function mapStateToProps(state) {
+  return {
+    myMessage: state.sendMessageReducer
+  };
+}
+export default connect(mapStateToProps)(Input);
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",

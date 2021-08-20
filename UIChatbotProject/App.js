@@ -19,12 +19,37 @@ import Send from "./components/Send";
 import { createStore } from "redux";
 import { Provider } from "react-redux";
 import { LinearGradient } from "expo-linear-gradient";
+import { combineReducers } from "redux";
+
+let arrMessage = [];
+
+const message = { mine:true, text:''};
+const addMessage = (message) =>{
+   arrMessage.push(message)
+}
+const getArrMessage = () =>{
+  return arrMessage;
+}
+
+const sendMessageReducer = (state=message, action)=>{
+  if(action.type === 'SEND_MESSAGE') {
+      addMessage(state)
+      
+      return state
+  }
+  else{
+    console.log(state);
+    return  { mine:true, text:state.text};
+  }
+}
+
 
 const show = {
   display: "none",
 };
 
-const reducer = (state = show, action) => {
+
+const displaysReducer = (state = show, action) => {
   if (action.type === "SHOW") {
     return { display: (state.display = "flex") };
   }
@@ -33,6 +58,10 @@ const reducer = (state = show, action) => {
   }
   return state;
 };
+const reducer = combineReducers({
+  displaysReducer: displaysReducer,
+  sendMessageReducer,
+});
 
 const store = createStore(reducer);
 
@@ -59,41 +88,16 @@ class App extends React.Component {
     });
   }
 
-  addNewViewFunction = () => {
-    this.animatedValue.setValue(0);
-    let newAddedViewValue = {arrayValueIndex:this.arrayValueIndex}
-    this.setState({disableButton:true,
-      viewArray:[...this.state.viewArray,newAddedViewValue]},
-      () =>{
-        Animated.timing(
-          this.animatedValue,
-          {
-            toValue:1,
-            duration:400,
-            useNativeDriver:true
-          }
-        ).start(() =>
-        {
-          this.arrayValueIndex +=1;
-          this.setState({disableButton:false})
-        })
-      })
-  }
-
+  
   render() {
-    const AnimationValue = this.animatedValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [-59, 0],
+    let renderAnimateView = arrMessage.map((value) => {
+      return (
+        <MessageBubble
+          {...(value.mine ? "mine" : "not_mine")}
+          {...value.text}
+        />
+      );
     });
-    let renderAnimateView = this.state.viewArray.map((value,key)=>
-    {
-        return (
-          <Animated.View key={key}>
-            <MessageBubble mine text="hello"/>
-          </Animated.View>
-        );
-    });
-
     return (
       <Provider store={store}>
         <LinearGradient
@@ -120,9 +124,9 @@ class App extends React.Component {
             <BlurView style={styles.footer} tint={"dark"}>
               <Input />
               <Send
-                {...this.props}
+               
                 disabledBtn={this.state.disableButton}
-                addView={this.addNewViewFunction()}
+                addView={this.addNewView}
               />
             </BlurView>
           </KeyboardAvoidingView>

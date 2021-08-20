@@ -5,12 +5,14 @@ import { IconButton, Colors } from "react-native-paper";
 import { connect } from "react-redux";
 
 class Send extends React.Component {
-  constructor(props){
-    super(props)
-    const { disabledBtn, addView} = props;
+  constructor(props) {
+    super(props);
+  
   }
   state = {
     animation: new Animated.Value(0),
+    // disabledBtn:this.props.disabledBtn,
+    // addView: this.props.addView
   };
 
   startAnimation() {
@@ -38,8 +40,8 @@ class Send extends React.Component {
     return (
       <TouchableOpacity
         style={styles.send}
-        disabled={disabledBtn}
-        onPress={addView}
+        disabled={this.props.myDisable}
+        onPress={this.props.addView}
       >
         <Animated.View
           style={[animationStyle, { display: this.props.myValue }]}
@@ -52,7 +54,10 @@ class Send extends React.Component {
 }
 
 function mapStateToProps(state) {
-  return { myValue: state.display };
+  return {
+    myValue: state.displaysReducer.display,
+    myDisable: state.toggleDisableReducer,
+  };
 }
 export default connect(mapStateToProps)(Send);
 
