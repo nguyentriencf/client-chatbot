@@ -1,12 +1,11 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
+
 import {
   StyleSheet,
   Text,
   View,
   ScrollView,
-  Animated,
-  Easing,
   KeyboardAvoidingView,
   Platform,
   
@@ -21,59 +20,16 @@ import { Provider } from "react-redux";
 import { LinearGradient } from "expo-linear-gradient";
 import { combineReducers } from "redux";
 
-let arrMessage = [];
 
-const message = { mine:true, text:''};
-const addMessage = (message) =>{
-   arrMessage.push(message)
-}
-const getArrMessage = () =>{
-  return arrMessage;
-}
-
-const sendMessageReducer = (state=message, action)=>{
-  if(action.type === 'SEND_MESSAGE') {
-      addMessage(state)
-      
-      return state
-  }
-  else{
-    console.log(state);
-    return  { mine:true, text:state.text};
-  }
-}
-
-
-const show = {
-  display: "none",
-};
-
-
-const displaysReducer = (state = show, action) => {
-  if (action.type === "SHOW") {
-    return { display: (state.display = "flex") };
-  }
-  if (action.type === "NONE") {
-    return { display: (state.display = "none") };
-  }
-  return state;
-};
-const reducer = combineReducers({
-  displaysReducer: displaysReducer,
-  sendMessageReducer,
-});
-
-const store = createStore(reducer);
 
 const io = require("socket.io-client/dist/socket.io.js");
 
 class App extends React.Component {
+
+
   constructor(props) {
     super(props);
-    this.state={viewArray:[], disableButton:false};
-    this.animatedValue = new Animated.Value(0);
-    this.arrayValueIndex =0;
-
+    this.state={arrMessage:[]}
     this.socket = io("https://chatbot-dlu.herokuapp.com", {
       transports: ["websocket", "polling", "flashsocket"],
       jsonp: false,
@@ -86,28 +42,86 @@ class App extends React.Component {
     this.socket.on("send-schedule", (data) => {
       console.log(data);
     });
-  }
 
-  
+
+  }
+ 
   render() {
-    let renderAnimateView = arrMessage.map((value) => {
-      return (
-        <MessageBubble
-          {...(value.mine ? "mine" : "not_mine")}
-          {...value.text}
+const message = { mine:true, text:''};
+
+const show = {
+  display: "none",
+};
+
+const addMessage = (message) =>{
+  this.state.arrMessage.push(message)
+}
+
+const sendMessageReducer = (state=message, action)=>{
+  if(action.type === 'SEND_MESSAGE') {
+    const newMess ={mine:state.mine , text:state.text};
+       addMessage(newMess);
+       add_view();
+      return state
+  }
+  else{
+   
+    return  { mine:state.mine, text:state.text};
+  }
+}
+
+
+const displaysReducer = (state = show, action) => {
+  if (action.type === "SHOW") {
+    return { display: (state.display = "flex") };
+  }
+  if (action.type === "NONE") {
+    return { display: (state.display = "none") };
+  }
+  return state;
+};
+const reducer = combineReducers({
+  displaysReducer,
+  sendMessageReducer
+});
+
+const add_view = () =>{
+  this.setState({ arrMessage :this.state.arrMessage});
+}
+
+const store = createStore(reducer);
+
+
+   let renderMessage = 
+     this.state.arrMessage.map((item,key) => {
+       if(item.mine){
+        return (
+        <MessageBubble key ={key}
+             mine
+             text = {item.text}      
+          />
+        
+        );
+       }
+       return (
+        <MessageBubble key={key}
+           not_mine
+           text = {item.text}
         />
-      );
+      ); 
+      
     });
+   
     return (
       <Provider store={store}>
         <LinearGradient
           style={styles.container}
           colors={["#1E222D", "#1E212C", "#1C1F2A"]}
         >
-          <KeyboardAvoidingView
+          {/* <KeyboardAvoidingView
             style={styles.voidingView}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-          >
+          > */}
             <View style={styles.header}>
               <Text style={styles.textHeader}>Dlu bot</Text>
               <View style={styles.ViewOnline}>
@@ -116,25 +130,23 @@ class App extends React.Component {
               </View>
             </View>
             <View style={styles.body}>
-              <ScrollView showsHorizontalScrollIndicator={false}>
-                {renderAnimateView}
+              <ScrollView style={styles.scrollView}  showsHorizontalScrollIndicator={false}>      
+                {renderMessage}  
               </ScrollView>
             </View>
-
-            <BlurView style={styles.footer} tint={"dark"}>
+           
+            <BlurView style={styles.footer} tint={"dark"} >
               <Input />
-              <Send
-               
-                disabledBtn={this.state.disableButton}
-                addView={this.addNewView}
-              />
+              <Send/>
             </BlurView>
-          </KeyboardAvoidingView>
+          {/* </KeyboardAvoidingView> */}
         </LinearGradient>
       </Provider>
     );
   }
 }
+
+
 
 export default App;
 const styles = StyleSheet.create({
@@ -145,11 +157,12 @@ const styles = StyleSheet.create({
     flex: 1,
     resizeMode: "cover",
     justifyContent: "center",
-    overflow: "hidden",
+    overflow: "hidden"
   },
   footer: {
-    flex: 0.8,
-    backgroundColor: "#1D1F2C",
+    flex: 0.8 ,
+    backgroundColor:"#1D1F2C" 
+    
   },
   header: {
     flex: 1.5,
@@ -159,10 +172,10 @@ const styles = StyleSheet.create({
   body: {
     flex: 7.7,
     backgroundColor: "#1D1F2C",
-    padding:10
+   
   },
   scrollView: {
-    marginHorizontal: 10,
+    marginHorizontal: 10
   },
   textHeader: {
     color: "white",

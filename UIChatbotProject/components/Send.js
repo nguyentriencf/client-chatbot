@@ -10,9 +10,7 @@ class Send extends React.Component {
   
   }
   state = {
-    animation: new Animated.Value(0),
-    // disabledBtn:this.props.disabledBtn,
-    // addView: this.props.addView
+    animation: new Animated.Value(0)
   };
 
   startAnimation() {
@@ -37,16 +35,17 @@ class Send extends React.Component {
     } else {
       this.startAnimation().reset();
     }
+    function sendMess(){
+      this.props.dispatch({ type: "SEND_MESSAGE" });  
+    }
     return (
       <TouchableOpacity
         style={styles.send}
-        disabled={this.props.myDisable}
-        onPress={this.props.addView}
       >
         <Animated.View
           style={[animationStyle, { display: this.props.myValue }]}
         >
-          <IconButton icon="send" color={Colors.white} size={30} />
+          <IconButton icon="send" color={Colors.white} size={30} onPress={sendMess.bind(this)} />
         </Animated.View>
       </TouchableOpacity>
     );
@@ -55,8 +54,7 @@ class Send extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    myValue: state.displaysReducer.display,
-    myDisable: state.toggleDisableReducer,
+    myValue: state.displaysReducer.display
   };
 }
 export default connect(mapStateToProps)(Send);
@@ -64,7 +62,6 @@ export default connect(mapStateToProps)(Send);
 const styles = StyleSheet.create({
   send: {
     flexDirection: "row",
-    // marginTop: ,
     marginHorizontal: 20,
     position: "absolute",
     right: 0,

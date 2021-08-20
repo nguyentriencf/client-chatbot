@@ -9,9 +9,13 @@ class Input extends React.Component {
   }
   OnInputText = (TextInputValue) => {
     if (TextInputValue.trim() != 0) {
+      this.props.myMessage.text = TextInputValue;
+      this.props.myMessage.mine =true;
       this.props.dispatch({ type: "SHOW" }); 
+     
     } else {
-      this.props.dispatch({ type: "NONE" }); 
+      this.props.myMessage.text = TextInputValue;
+      this.props.dispatch({ type: "NONE" });      
     }
   };
 
@@ -19,13 +23,13 @@ class Input extends React.Component {
     return (
       <View style={styles.container}>
         <TextInput
-          placeholder="Aa"
+          placeholder="Type..."
           style={styles.input}
           onChangeText={(TextInputValue) => {
             this.OnInputText(TextInputValue);
-            console.log(TextInputValue);
+           
           }}
-          // value={this.props.myMessage.text}
+          value={this.props.myMessage.text}
         ></TextInput>
 
         <IconButton

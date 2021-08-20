@@ -1,9 +1,9 @@
 // import React
-import React, { useState } from "react";
+import React from "react";
 import { LinearGradient } from "expo-linear-gradient";
 
 //import react native Component
-import { StyleSheet, View, Text, Image } from "react-native";
+import { StyleSheet, View, Text, Image ,Animated } from "react-native";
 // Import react-native-size-matters
 import { moderateScale } from "react-native-size-matters";
 
@@ -14,14 +14,36 @@ import { moderateScale } from "react-native-size-matters";
 
 // Declare component
 class MessageBubble extends React.Component {
+
+  state = {
+    animatedValue: new Animated.Value(0)
+  };
+
+  startAnimation() {
+   return Animated.timing(this.state.animatedValue,
+    {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true
+    });
+  };
+  componentDidMount(){
+    this.startAnimation().start();
+   };
   render() {
+   
+ //   this.animatedValue.setValue(0);
+   
+    const AnimationValue = this.state.animatedValue.interpolate(
+      {
+          inputRange: [ 0, 1 ],
+          outputRange: [ -59, 0 ]
+      });
     return (
-      <View
-        style={[
-          styles.message,
-          this.props.mine ? styles.mine : styles.not_mine,
-        ]}
-      >
+      <Animated.View 
+       style={[  styles.message,
+        this.props.mine ? styles.mine : styles.not_mine, 
+        {opacity: this.state.animatedValue, transform: [{ translateY: AnimationValue }] }]}>
         <LinearGradient
           start={[0.5, 0.7, 0.9]}
           colors={
@@ -35,7 +57,7 @@ class MessageBubble extends React.Component {
             <Text style={[styles.text]}>{this.props.text}</Text>
           ) : null}
         </LinearGradient>
-      </View>
+      </Animated.View>
     );
   }
 }
