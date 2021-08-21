@@ -24,6 +24,7 @@ class Input extends React.Component {
       <View style={styles.container}>
         <TextInput
           placeholder="Type..."
+        
           style={styles.input}
           onChangeText={(TextInputValue) => {
             this.OnInputText(TextInputValue);
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    width: "70%",
+    width: "80%",
     maxWidth: "70%",
     position: "absolute",
     bottom: 8,
@@ -62,7 +63,8 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     backgroundColor: "#30384B",
     justifyContent: "center",
-    marginHorizontal: 40,
+    marginHorizontal: 50,
+   
   },
   input: {
     // fontFamily: "Montserrat_600SemiBold",
@@ -70,13 +72,13 @@ const styles = StyleSheet.create({
     maxWidth: "100%",
     width: "90%",
     color: "white",
-    borderColor: "transparent",
-    marginRight: 40,
+    borderColor: "transparent"
+  
   },
   micro: {
     flexDirection: "row",
     position: "absolute",
-    right: -5,
+    right: -3,
     borderRadius: 60,
     backgroundColor: "#434959",
   },

@@ -9,20 +9,25 @@ class Send extends React.Component {
     super(props);
   
   }
-  state = {
-    animation: new Animated.Value(0)
-  };
-
-  startAnimation() {
-    return Animated.timing(this.state.animation, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    });
+   sendMess(){
+    this.props.dispatch({ type: "SEND_MESSAGE" });  
   }
 
   render() {
-    const rotateInterpolate = this.state.animation.interpolate({
+   const state = {
+      animation: new Animated.Value(0)
+    };
+
+    
+   function startAnimation() {
+      return Animated.timing(state.animation, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      });
+    }
+
+    const rotateInterpolate = state.animation.interpolate({
       inputRange: [0, 1],
       outputRange: ["0deg", "360deg"],
     });
@@ -31,13 +36,12 @@ class Send extends React.Component {
       transform: [{ rotate: rotateInterpolate }],
     };
     if (this.props.myValue === "flex") {
-      this.startAnimation().start();
+  
+      startAnimation().start();
     } else {
-      this.startAnimation().reset();
+      startAnimation().reset();
     }
-    function sendMess(){
-      this.props.dispatch({ type: "SEND_MESSAGE" });  
-    }
+   
     return (
       <TouchableOpacity
         style={styles.send}
@@ -45,7 +49,7 @@ class Send extends React.Component {
         <Animated.View
           style={[animationStyle, { display: this.props.myValue }]}
         >
-          <IconButton icon="send" color={Colors.white} size={30} onPress={sendMess.bind(this)} />
+          <IconButton icon="send" color={Colors.white} size={30} onPress={this.sendMess.bind(this)} />
         </Animated.View>
       </TouchableOpacity>
     );

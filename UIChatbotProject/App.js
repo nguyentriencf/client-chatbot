@@ -118,10 +118,10 @@ const store = createStore(reducer);
           style={styles.container}
           colors={["#1E222D", "#1E212C", "#1C1F2A"]}
         >
-          {/* <KeyboardAvoidingView
+          <KeyboardAvoidingView
             style={styles.voidingView}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
-          > */}
+          >
             <View style={styles.header}>
               <Text style={styles.textHeader}>Dlu bot</Text>
               <View style={styles.ViewOnline}>
@@ -130,23 +130,24 @@ const store = createStore(reducer);
               </View>
             </View>
             <View style={styles.body}>
-              <ScrollView style={styles.scrollView}  showsHorizontalScrollIndicator={false}>      
+              <ScrollView showsVerticalScrollIndicator ={false} style={styles.scrollView}  
+               ref={ref => {this.scrollView = ref}}
+               onContentSizeChange={() => this.scrollView.scrollToEnd({animated: true})}
+               >      
                 {renderMessage}  
               </ScrollView>
             </View>
            
-            <BlurView style={styles.footer} tint={"dark"} >
+            <View style={styles.footer} >
               <Input />
               <Send/>
-            </BlurView>
-          {/* </KeyboardAvoidingView> */}
+            </View>
+           </KeyboardAvoidingView> 
         </LinearGradient>
       </Provider>
     );
   }
 }
-
-
 
 export default App;
 const styles = StyleSheet.create({
@@ -156,16 +157,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     resizeMode: "cover",
-    justifyContent: "center",
-    overflow: "hidden"
+    justifyContent: "center"
   },
   footer: {
     flex: 0.8 ,
-    backgroundColor:"#1D1F2C" 
-    
+    backgroundColor:"#1D1F2C"
+   
   },
   header: {
-    flex: 1.5,
+    flex: 1.8,
     backgroundColor: "#1D1F2C",
     alignItems: "center",
   },
@@ -176,6 +176,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     marginHorizontal: 10
+   
   },
   textHeader: {
     color: "white",
@@ -184,11 +185,12 @@ const styles = StyleSheet.create({
   },
   ViewOnline: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "center"
   },
   textOnline: {
     color: "#777980",
     fontSize: 14,
-    left: 0,
+    left: -10,
+    position:'relative'
   },
 });
