@@ -61,14 +61,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginVertical: moderateScale(7, 2),
   },
-  mine: {
+  not_mine: {
     marginLeft: 5,
   },
-  not_mine: {
+  mine: {
     marginRight: 5,
-    alignSelf:'flex-end',
+    alignSelf: "flex-end",
   },
-  cloudMine: {
+  cloudNotMine: {
     maxWidth: moderateScale(250, 2),
     paddingHorizontal: moderateScale(10, 2),
     paddingTop: moderateScale(5, 2),
@@ -76,9 +76,9 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 30,
     borderBottomRightRadius: 30,
     borderBottomLeftRadius: 30,
-    backgroundColor:'#272C3A'
+    backgroundColor: "#272C3A",
   },
-  cloudNotMine: {
+  cloudMine: {
     maxWidth: moderateScale(250, 2),
     paddingHorizontal: moderateScale(10, 2),
     paddingTop: moderateScale(5, 2),
@@ -86,16 +86,14 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderBottomLeftRadius: 30,
     borderTopRightRadius: 30,
-  backgroundColor:"#5E56BD"
-
+    backgroundColor: "#5E56BD",
   },
   background: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     top: 0,
     height: 300,
-    
   },
   text: {
     color: "white",
@@ -112,6 +110,4 @@ const styles = StyleSheet.create({
     zIndex: -1,
     flex: 1,
   },
-  
-  
 });
