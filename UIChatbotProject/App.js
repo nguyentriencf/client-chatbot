@@ -1,4 +1,4 @@
-
+import { StatusBar } from "expo-status-bar";
 import React from "react";
 
 import {
@@ -11,6 +11,7 @@ import {
   
 } from "react-native";
 import MessageBubble from "./components/MessageBubble";
+import { BlurView } from "expo-blur";
 import { Entypo } from "@expo/vector-icons";
 import Input from "./components/Input";
 import Send from "./components/Send";
@@ -19,10 +20,11 @@ import { Provider } from "react-redux";
 import { LinearGradient } from "expo-linear-gradient";
 import { combineReducers } from "redux";
 
-
-
 const io = require("socket.io-client/dist/socket.io.js");
+
 class App extends React.Component {
+
+
   constructor(props) {
     super(props);
     this.state={arrMessage:[]}
@@ -36,8 +38,10 @@ class App extends React.Component {
       this.socket.emit("scheduleWeek", "ngày mai");
     });
     this.socket.on("send-schedule", (data) => {
-      console.log(data);
+     // console.log(data);
     });
+
+
   }
  
   render() {
@@ -56,11 +60,12 @@ const sendMessageReducer = (state=message, action)=>{
     const newMess ={mine:state.mine , text:state.text};
        addMessage(newMess);
        add_view();
-      return state;
+      return state
   }
   else{
-    return  {mine:state.mine, text:state.text};
-  } 
+   
+    return  { mine:state.mine, text:state.text};
+  }
 }
 
 
@@ -84,6 +89,7 @@ const add_view = () =>{
 
 const store = createStore(reducer);
 
+
    let renderMessage = 
      this.state.arrMessage.map((item,key) => {
        if(item.mine){
@@ -91,7 +97,7 @@ const store = createStore(reducer);
         <MessageBubble key ={key}
              mine
              text = {item.text}      
-          />  
+          />
         );
        }
        return (
@@ -99,7 +105,7 @@ const store = createStore(reducer);
            not_mine
            text = {item.text}
         />
-      );   
+      );  
     });
    
     return (
@@ -150,12 +156,12 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   footer: {
-    flex: 1,
+    flex: 0.8 ,
     backgroundColor:"#1D1F2C"
    
   },
   header: {
-    flex: 1.5,
+    flex: 1.8,
     backgroundColor: "#1D1F2C",
     alignItems: "center",
   },
