@@ -1,44 +1,31 @@
-import { StatusBar } from "expo-status-bar";
+
 import React from "react";
-import { SafeAreaView } from "react-native";
+
 import {
   StyleSheet,
   Text,
   View,
   ScrollView,
-  Animated,
-  Easing,
+  KeyboardAvoidingView,
+  Platform,
+  
 } from "react-native";
 import MessageBubble from "./components/MessageBubble";
-import { BlurView } from "expo-blur";
 import { Entypo } from "@expo/vector-icons";
 import Input from "./components/Input";
 import Send from "./components/Send";
 import { createStore } from "redux";
 import { Provider } from "react-redux";
 import { LinearGradient } from "expo-linear-gradient";
+import { combineReducers } from "redux";
 
-const show = {
-  display: "none",
-};
 
-const reducer = (state = show, action) => {
-  if (action.type === "SHOW") {
-    return { display: (state.display = "flex") };
-  }
-  if (action.type === "NONE") {
-    return { display: (state.display = "none") };
-  }
-  return state;
-};
-
-const store = createStore(reducer);
 
 const io = require("socket.io-client/dist/socket.io.js");
-
 class App extends React.Component {
   constructor(props) {
     super(props);
+    this.state={arrMessage:[]}
     this.socket = io("https://chatbot-dlu.herokuapp.com", {
       transports: ["websocket", "polling", "flashsocket"],
       jsonp: false,
@@ -52,14 +39,78 @@ class App extends React.Component {
       console.log(data);
     });
   }
-
+ 
   render() {
+const message = { mine:true, text:''};
+
+const show = {
+  display: "none",
+};
+
+const addMessage = (message) =>{
+  this.state.arrMessage.push(message)
+}
+
+const sendMessageReducer = (state=message, action)=>{
+  if(action.type === 'SEND_MESSAGE') {
+    const newMess ={mine:state.mine , text:state.text};
+       addMessage(newMess);
+       add_view();
+      return state;
+  }
+  else{
+    return  {mine:state.mine, text:state.text};
+  } 
+}
+
+
+const displaysReducer = (state = show, action) => {
+  if (action.type === "SHOW") {
+    return { display: (state.display = "flex") };
+  }
+  if (action.type === "NONE") {
+    return { display: (state.display = "none") };
+  }
+  return state;
+};
+const reducer = combineReducers({
+  displaysReducer,
+  sendMessageReducer
+});
+
+const add_view = () =>{
+  this.setState({ arrMessage :this.state.arrMessage});
+}
+
+const store = createStore(reducer);
+
+   let renderMessage = 
+     this.state.arrMessage.map((item,key) => {
+       if(item.mine){
+        return (
+        <MessageBubble key ={key}
+             mine
+             text = {item.text}      
+          />  
+        );
+       }
+       return (
+        <MessageBubble key={key}
+           not_mine
+           text = {item.text}
+        />
+      );   
+    });
+   
     return (
       <Provider store={store}>
-        <>
-          <LinearGradient
-            colors={["#1E222D", "#1E212C", "#1C1F2A"]}
-            style={styles.container}
+        <LinearGradient
+          style={styles.container}
+          colors={["#1E222D", "#1E212C", "#1C1F2A"]}
+        >
+          <KeyboardAvoidingView
+            style={styles.voidingView}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
           >
             <View style={styles.header}>
               <Text style={styles.textHeader}>Dlu bot</Text>
@@ -68,36 +119,21 @@ class App extends React.Component {
                 <Text style={styles.textOnline}>Online</Text>
               </View>
             </View>
-
             <View style={styles.body}>
-              <ScrollView
-                style={styles.scrollView}
-                showsHorizontalScrollIndicator={false}
-              >
-                <MessageBubble mine text="Hello, Nguyễn Mậu Tuấn" />
-                <MessageBubble not_mine text="Hi, Huỳnh Thiên Tâns" />
-                <MessageBubble
-                  mine
-                  text="Hi bottom:10,You can now view UIChatbotProject in the browser"
-                />
-                <MessageBubble mine text="Hello, Nguyễn Mậu Tuấn" />
-                <MessageBubble not_mine text="Hi, Huỳnh Thiên Tâns" />
-                <MessageBubble not_mine text="Hi, Huỳnh Thiên Tâns" />
-                <MessageBubble not_mine text="Hi, Huỳnh Thiên Tâns" />
-                <MessageBubble not_mine text="Hi, Huỳnh Thiên Tâns" />
-                <MessageBubble mine text="Hello, Nguyễn Mậu Tuấn" />
-
-                <MessageBubble not_mine text="Hi, Huỳnh Thiên Tâns" />
-                <MessageBubble mine text="Hello, Nguyễn Mậu Tuấn" />
+              <ScrollView showsVerticalScrollIndicator ={false} style={styles.scrollView}  
+               ref={ref => {this.scrollView = ref}}
+               onContentSizeChange={() => this.scrollView.scrollToEnd({animated: true})}
+               >      
+                {renderMessage}  
               </ScrollView>
             </View>
-
-            <BlurView style={styles.footer} tint={"dark"}>
+           
+            <View style={styles.footer} >
               <Input />
-              <Send />
-            </BlurView>
-          </LinearGradient>
-        </>
+              <Send/>
+            </View>
+           </KeyboardAvoidingView> 
+        </LinearGradient>
       </Provider>
     );
   }
@@ -105,15 +141,18 @@ class App extends React.Component {
 
 export default App;
 const styles = StyleSheet.create({
+  voidingView: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     resizeMode: "cover",
-    justifyContent: "center",
-    overflow: "hidden",
+    justifyContent: "center"
   },
   footer: {
     flex: 1,
-    backgroundColor: "#1D1F2C",
+    backgroundColor:"#1D1F2C"
+   
   },
   header: {
     flex: 1.5,
@@ -121,11 +160,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   body: {
-    flex: 11,
+    flex: 7.7,
     backgroundColor: "#1D1F2C",
+   
   },
   scrollView: {
-    marginHorizontal: 10,
+    marginHorizontal: 10
+   
   },
   textHeader: {
     color: "white",
@@ -134,11 +175,12 @@ const styles = StyleSheet.create({
   },
   ViewOnline: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "center"
   },
   textOnline: {
     color: "#777980",
     fontSize: 14,
-    left: 0,
+    left: -10,
+    position:'relative'
   },
 });

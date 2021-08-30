@@ -6,17 +6,16 @@ import { connect } from "react-redux";
 class Input extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      TextInputValue: "",
-    };
   }
   OnInputText = (TextInputValue) => {
     if (TextInputValue.trim() != 0) {
-      this.props.dispatch({ type: "SHOW" });
-      this.setState({ TextInputValue: TextInputValue });
+      this.props.myMessage.text = TextInputValue;
+      this.props.myMessage.mine =true;
+      this.props.dispatch({ type: "SHOW" }); 
+     
     } else {
-      this.props.dispatch({ type: "NONE" });
-      this.setState({ TextInputValue: TextInputValue });
+      this.props.myMessage.text = TextInputValue;
+      this.props.dispatch({ type: "NONE" });      
     }
   };
 
@@ -24,56 +23,60 @@ class Input extends React.Component {
     return (
       <View style={styles.container}>
         <TextInput
-          placeholder="Some text"
+          placeholder="Type..."
           style={styles.input}
           onChangeText={(TextInputValue) => {
             this.OnInputText(TextInputValue);
+           
           }}
+          value={this.props.myMessage.text}
         ></TextInput>
 
         <IconButton
           style={styles.micro}
           icon="microphone-outline"
           color={Colors.white}
-          size={25}
+          size={23}
           onPress={() => alert("Pressed")}
         />
       </View>
     );
   }
 }
-export default connect()(Input);
+
+function mapStateToProps(state) {
+  return {
+    myMessage: state.sendMessageReducer
+  };
+}
+export default connect(mapStateToProps)(Input);
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    // alignSelf: "right",
     alignItems: "center",
-    width: "70%",
+    width: "80%",
     maxWidth: "70%",
     position: "absolute",
     bottom: 8,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 6,
     borderRadius: 60,
     backgroundColor: "#30384B",
     justifyContent: "center",
-    marginHorizontal: 40,
+    marginHorizontal: 50,
   },
   input: {
-    fontFamily: "Montserrat_600SemiBold",
+    // fontFamily: "Montserrat_600SemiBold",
     fontSize: 20,
     maxWidth: "100%",
     width: "90%",
     color: "white",
-    borderColor: "transparent",
-    marginRight: 40,
+    borderColor: "transparent"
   },
   micro: {
     flexDirection: "row",
-    top: -3,
     position: "absolute",
-    right: 0,
-    borderRadius: 50,
+    right: -3,
+    borderRadius: 60,
     backgroundColor: "#434959",
   },
 });

@@ -1,24 +1,33 @@
 
 import React from "react";
-import { StyleSheet, Animated } from "react-native";
+import { StyleSheet, Animated, TouchableOpacity } from "react-native";
 import { IconButton, Colors } from "react-native-paper";
 import { connect } from "react-redux";
 
 class Send extends React.Component {
-  state = {
-    animation: new Animated.Value(0),
-  };
-
-  startAnimation() {
-    return Animated.timing(this.state.animation, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    });
+  constructor(props) {
+    super(props);
+  
+  }
+   sendMess(){
+    this.props.dispatch({ type: "SEND_MESSAGE" });  
   }
 
   render() {
-    const rotateInterpolate = this.state.animation.interpolate({
+   const state = {
+      animation: new Animated.Value(0)
+    };
+
+    
+   function startAnimation() {
+      return Animated.timing(state.animation, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      });
+    }
+
+    const rotateInterpolate = state.animation.interpolate({
       inputRange: [0, 1],
       outputRange: ["0deg", "360deg"],
     });
@@ -27,32 +36,40 @@ class Send extends React.Component {
       transform: [{ rotate: rotateInterpolate }],
     };
     if (this.props.myValue === "flex") {
-      this.startAnimation().start();
+  
+      startAnimation().start();
     } else {
-      this.startAnimation().reset();
+      startAnimation().reset();
     }
+   
     return (
-      <Animated.View
-        style={[styles.send, animationStyle, { display: this.props.myValue }]}
+      <TouchableOpacity
+        style={styles.send}
       >
-        <IconButton icon="send" color={Colors.white} size={30} />
-      </Animated.View>
+        <Animated.View
+          style={[animationStyle, { display: this.props.myValue }]}
+        >
+          <IconButton icon="send" color={Colors.white} size={30} onPress={this.sendMess.bind(this)} />
+        </Animated.View>
+      </TouchableOpacity>
     );
   }
 }
 
 function mapStateToProps(state) {
-  return { myValue: state.display };
+  return {
+    myValue: state.displaysReducer.display
+  };
 }
 export default connect(mapStateToProps)(Send);
 
 const styles = StyleSheet.create({
   send: {
     flexDirection: "row",
-    marginTop: -1,
     marginHorizontal: 20,
     position: "absolute",
     right: 0,
+    bottom:1,
   },
   box: {
     width: 150,
