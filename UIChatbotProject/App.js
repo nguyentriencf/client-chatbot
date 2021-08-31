@@ -19,7 +19,7 @@ import { createStore } from "redux";
 import { Provider } from "react-redux";
 import { LinearGradient } from "expo-linear-gradient";
 import { combineReducers } from "redux";
-
+// socket-client
 const io = require("socket.io-client/dist/socket.io.js");
 
 class App extends React.Component {
