@@ -7,9 +7,12 @@ import {
   View,
   ScrollView,
   KeyboardAvoidingView,
-  Platform,
-  
+  Platform
+   
 } from "react-native";
+
+import AsyncStorage from "@react-native-community/async-storage";
+
 import MessageBubble from "./components/MessageBubble";
 import { BlurView } from "expo-blur";
 import { Entypo } from "@expo/vector-icons";
@@ -27,7 +30,13 @@ class App extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state={arrMessage:[]}
+    //{ mine:true , text:"hello"} ,{mine:false , text:"hi from bot"}
+    this.state={
+      arrMessage:[],
+      data:[]
+    }
+      this.getDataStorage();
+     this.removeDataStorage();
     //https://chatbot-dlu.herokuapp.com
   
     this.socket = io("http://localhost:5000", {
@@ -40,10 +49,41 @@ class App extends React.Component {
 
      this.socket.on("send-schedule", (data) => {
          console.log(data);
-         const newMess = {mine:false , text:data};
+         //const newMess = {mine:false , text:data};
        });
   }
- 
+   
+  removeDataStorage = () =>{
+    AsyncStorage.removeItem('data');
+  }
+
+  getDataStorage =  ()=>{
+     AsyncStorage.multiGet(['data'],(err, stores)=>{ 
+         if(stores !== null){  
+            
+          stores.map((result,i,store)=>{   
+             if (store[i][1] !== null){
+              let items = JSON.parse(store[i][1]);  
+              items.forEach(el =>{
+                this.state.arrMessage.push(el);
+                this.setState({ arrMessage :this.state.arrMessage});
+              })      
+             }
+          })
+         }else{
+          console.log("empty");
+         }  
+         if(err){
+           console.log(err.message);
+         } 
+      }
+      );
+  }
+  setDataStorage = async (arrMessage)=>{
+     let item = ['data',JSON.stringify(arrMessage)];
+            await AsyncStorage.multiSet([item]);
+  }
+
   render() {
 const message = { mine:true, text:''};
 
@@ -51,8 +91,9 @@ const show = {
   display: "none",
 };
 
-const addMessage = (message) =>{
-  this.state.arrMessage.push(message)
+const addMessage = async (message) =>{
+  this.state.arrMessage.push(message);
+  await this.setDataStorage(this.state.arrMessage);
 }
 
 const sendMessageReducer = (state=message, action)=>{
@@ -65,13 +106,9 @@ const sendMessageReducer = (state=message, action)=>{
        add_view();
    return {mine:state.mine , text:state.text};
   }
-  // else{
-    
-  //   return {mine:state.mine , text:state.text};
-  // }
+ 
   return   {mine:state.mine , text:state.text};;
 }
-
 
 const displaysReducer = (state = show, action) => {
   if (action.type === "SHOW") {
@@ -92,6 +129,7 @@ const reducer = combineReducers({
 
 const add_view = () =>{
   this.setState({ arrMessage :this.state.arrMessage});
+
 }
 
 const store = createStore(reducer);
@@ -99,17 +137,12 @@ const store = createStore(reducer);
 
    let renderMessage = 
      this.state.arrMessage.map((item,key) => {
+     
        if(item.mine){
         return (
         <MessageBubble key ={key}
              mine
-             text = {"Thứ 2 :\nSáng: không có tiết\n"+
-              "Chiều:\n-Môn: Giao tiếp trong kinh doanh (QT2008D)\n"+
-                     "-Nhóm: 01-Lớp: QTK43A\n-Tiết: 7->9\n"+
-                           "-Phòng: A27.06\n"+
-                           "-GV: Hoàng Đức Lâm\n"+
-                           "-Đã học: 19/45 tiết\n"+
-                      "Tối: không có tiết"}      
+             text = {item.text}      
           />
        
         );
