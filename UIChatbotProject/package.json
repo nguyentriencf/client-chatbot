@@ -9,6 +9,7 @@
     "react-devtools": "react-devtools"
   },
   "dependencies": {
+    "@react-native-community/async-storage": "^1.12.1",
     "expo": "^42.0.3",
     "expo-blur": "~9.0.3",
     "expo-linear-gradient": "^9.2.0",

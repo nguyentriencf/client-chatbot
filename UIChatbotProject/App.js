@@ -7,9 +7,12 @@ import {
   View,
   ScrollView,
   KeyboardAvoidingView,
-  Platform,
-  
+  Platform
+   
 } from "react-native";
+
+import AsyncStorage from "@react-native-community/async-storage";
+
 import MessageBubble from "./components/MessageBubble";
 import { BlurView } from "expo-blur";
 import { Entypo } from "@expo/vector-icons";
@@ -27,23 +30,60 @@ class App extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state={arrMessage:[]}
-    this.socket = io("https://chatbot-dlu.herokuapp.com", {
+    //{ mine:true , text:"hello"} ,{mine:false , text:"hi from bot"}
+    this.state={
+      arrMessage:[],
+      data:[]
+    }
+      this.getDataStorage();
+     this.removeDataStorage();
+    //https://chatbot-dlu.herokuapp.com
+  
+    this.socket = io("http://localhost:5000", {
       transports: ["websocket", "polling", "flashsocket"],
       jsonp: false,
     });
     this.socket.on("connect", () => {
-      console.log("socket connected");
-      //input
-      this.socket.emit("scheduleWeek", "ngày mai");
-    });
-    this.socket.on("send-schedule", (data) => {
-     // console.log(data);
+      console.log("socket connected from server chatbot-dlu");   
     });
 
-
+     this.socket.on("send-schedule", (data) => {
+         console.log(data);
+         //const newMess = {mine:false , text:data};
+       });
   }
- 
+   
+  removeDataStorage = () =>{
+    AsyncStorage.removeItem('data');
+  }
+
+  getDataStorage =  ()=>{
+     AsyncStorage.multiGet(['data'],(err, stores)=>{ 
+         if(stores !== null){  
+            
+          stores.map((result,i,store)=>{   
+             if (store[i][1] !== null){
+              let items = JSON.parse(store[i][1]);  
+              items.forEach(el =>{
+                this.state.arrMessage.push(el);
+                this.setState({ arrMessage :this.state.arrMessage});
+              })      
+             }
+          })
+         }else{
+          console.log("empty");
+         }  
+         if(err){
+           console.log(err.message);
+         } 
+      }
+      );
+  }
+  setDataStorage = async (arrMessage)=>{
+     let item = ['data',JSON.stringify(arrMessage)];
+            await AsyncStorage.multiSet([item]);
+  }
+
   render() {
 const message = { mine:true, text:''};
 
@@ -51,31 +91,35 @@ const show = {
   display: "none",
 };
 
-const addMessage = (message) =>{
-  this.state.arrMessage.push(message)
+const addMessage = async (message) =>{
+  this.state.arrMessage.push(message);
+  await this.setDataStorage(this.state.arrMessage);
 }
 
 const sendMessageReducer = (state=message, action)=>{
   if(action.type === 'SEND_MESSAGE') {
-    const newMess ={mine:state.mine , text:state.text};
+ 
+    const newMess = {mine:state.mine , text:state.text};
+      //input
+      this.socket.emit("scheduleWeek", "thời khóa biểu tuần này");
        addMessage(newMess);
        add_view();
-      return state
+   return {mine:state.mine , text:state.text};
   }
-  else{
-   
-    return  { mine:state.mine, text:state.text};
-  }
+ 
+  return   {mine:state.mine , text:state.text};;
 }
-
 
 const displaysReducer = (state = show, action) => {
   if (action.type === "SHOW") {
+    
     return { display: (state.display = "flex") };
   }
   if (action.type === "NONE") {
+    
     return { display: (state.display = "none") };
   }
+
   return state;
 };
 const reducer = combineReducers({
@@ -85,6 +129,7 @@ const reducer = combineReducers({
 
 const add_view = () =>{
   this.setState({ arrMessage :this.state.arrMessage});
+
 }
 
 const store = createStore(reducer);
@@ -92,12 +137,14 @@ const store = createStore(reducer);
 
    let renderMessage = 
      this.state.arrMessage.map((item,key) => {
+     
        if(item.mine){
         return (
         <MessageBubble key ={key}
              mine
              text = {item.text}      
           />
+       
         );
        }
        return (

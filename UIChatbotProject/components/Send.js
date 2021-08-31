@@ -9,11 +9,12 @@ class Send extends React.Component {
     super(props);
   
   }
-   sendMess(){
+  sendMess(){
     this.props.dispatch({ type: "SEND_MESSAGE" });  
   }
 
   render() {
+  
    const state = {
       animation: new Animated.Value(0)
     };
@@ -58,7 +59,7 @@ class Send extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    myValue: state.displaysReducer.display
+    myValue: state.displaysReducer
   };
 }
 export default connect(mapStateToProps)(Send);
