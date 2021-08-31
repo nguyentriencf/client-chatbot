@@ -28,20 +28,20 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state={arrMessage:[]}
-    this.socket = io("https://chatbot-dlu.herokuapp.com", {
+    //https://chatbot-dlu.herokuapp.com
+  
+    this.socket = io("http://localhost:5000", {
       transports: ["websocket", "polling", "flashsocket"],
       jsonp: false,
     });
     this.socket.on("connect", () => {
-      console.log("socket connected");
-      //input
-      this.socket.emit("scheduleWeek", "ngày mai");
-    });
-    this.socket.on("send-schedule", (data) => {
-     // console.log(data);
+      console.log("socket connected from server chatbot-dlu");   
     });
 
-
+     this.socket.on("send-schedule", (data) => {
+         console.log(data);
+         const newMess = {mine:false , text:data};
+       });
   }
  
   render() {
@@ -57,25 +57,32 @@ const addMessage = (message) =>{
 
 const sendMessageReducer = (state=message, action)=>{
   if(action.type === 'SEND_MESSAGE') {
-    const newMess ={mine:state.mine , text:state.text};
+ 
+    const newMess = {mine:state.mine , text:state.text};
+      //input
+      this.socket.emit("scheduleWeek", "thời khóa biểu tuần này");
        addMessage(newMess);
        add_view();
-      return state
+   return {mine:state.mine , text:state.text};
   }
-  else{
-   
-    return  { mine:state.mine, text:state.text};
-  }
+  // else{
+    
+  //   return {mine:state.mine , text:state.text};
+  // }
+  return   {mine:state.mine , text:state.text};;
 }
 
 
 const displaysReducer = (state = show, action) => {
   if (action.type === "SHOW") {
+    
     return { display: (state.display = "flex") };
   }
   if (action.type === "NONE") {
+    
     return { display: (state.display = "none") };
   }
+
   return state;
 };
 const reducer = combineReducers({
@@ -96,8 +103,15 @@ const store = createStore(reducer);
         return (
         <MessageBubble key ={key}
              mine
-             text = {item.text}      
+             text = {"Thứ 2 :\nSáng: không có tiết\n"+
+              "Chiều:\n-Môn: Giao tiếp trong kinh doanh (QT2008D)\n"+
+                     "-Nhóm: 01-Lớp: QTK43A\n-Tiết: 7->9\n"+
+                           "-Phòng: A27.06\n"+
+                           "-GV: Hoàng Đức Lâm\n"+
+                           "-Đã học: 19/45 tiết\n"+
+                      "Tối: không có tiết"}      
           />
+       
         );
        }
        return (
