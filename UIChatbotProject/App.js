@@ -19,6 +19,8 @@ import { createStore } from "redux";
 import { Provider } from "react-redux";
 import { LinearGradient } from "expo-linear-gradient";
 import { combineReducers } from "redux";
+import { Schedule } from "./entity/Schedule";
+import { ScheduleComponent } from "./entity/ScheduleComponent";
 // socket-client
 const io = require("socket.io-client/dist/socket.io.js");
 
@@ -39,11 +41,31 @@ class App extends React.Component {
     });
 
      this.socket.on("send-schedule", (data) => {
-         console.log(data);
          const newMess = {mine:false , text:data};
        });
+        function renderSchedule(data) {
+          const [, ...filterData] = [...data];
+          for(const[key,value] of Object.entries(filterData)){
+            console.log(typeof value);
+            const{fir,...last} = value
+            for(const[key,value] of Object.entries(last)){
+              console.log(value);
+            }
+          }
+        }
+
+        renderSchedule([
+          1,
+          {
+            0: "Thứ 3",
+            Sáng: "",
+            Chiều:
+              "-Môn: Hệ quản trị cơ sở dữ liệu (CT4218D)-Nhóm: 01-Lớp: CTK42-PM-Tiết: 7->10-Phòng: A31.105-GV: Đoàn Minh Khuê-Đã học: 0/30 tiết",
+            Tối: "",
+          },
+        ]);
   }
- 
+
   render() {
 const message = { mine:true, text:''};
 
@@ -110,8 +132,7 @@ const store = createStore(reducer);
                            "-GV: Hoàng Đức Lâm\n"+
                            "-Đã học: 19/45 tiết\n"+
                       "Tối: không có tiết"}      
-          />
-       
+          />  
         );
        }
        return (
