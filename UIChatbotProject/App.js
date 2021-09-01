@@ -44,33 +44,39 @@ class App extends React.Component {
        console.log(data);
        renderSchedule(data)
          const newMess = {mine:false , text:data};
+        //  "Thứ 2 :\nSáng: không có tiết\n"+
+        //       "Chiều:\n-Môn: Giao tiếp trong kinh doanh (QT2008D)\n"+
+        //              "-Nhóm: 01-Lớp: QTK43A\n-Tiết: 7->9\n"+
+        //                    "-Phòng: A27.06\n"+
+        //                    "-GV: Hoàng Đức Lâm\n"+
+        //                    "-Đã học: 19/45 tiết\n"+
+        //               "Tối: không có tiết"
        });
+
         function renderSchedule(data) {
           const [, ...filterData] = [...data];
+          
           for(const[key,value] of Object.entries(filterData)){
             // console.log(typeof value);
+        
            const{0:thu,...rest} = value
-
-console.log(thu);
+         console.log(thu);
+      const schedule = new Schedule();
             for(const[key,value] of Object.entries(rest)){
-            const schedule = new Schedule();
-
-              const noon =   key.toLocaleLowerCase();
+         
+              const noon =  key.toLocaleLowerCase();
               const scheduleComponent =initSche(key, value);
               if (typeof scheduleComponent !== String) {
-               const scheduleAfterCheck=  checkNoon(schedule, 0, thu, scheduleComponent,noon);
-               console.log(scheduleAfterCheck);
-
-              } else {
-               const scheduleAfterCheck=  checkNoon(schedule, 1, thu, scheduleComponent,noon);
-               console.log(scheduleAfterCheck);
-
+           checkNoon(schedule, 0, thu, scheduleComponent,noon);  
+              }else {
+             checkNoon(schedule, 1, thu, scheduleComponent,noon);
+            
               }
-
-               
           }
-          // console.log(schedule.morning);
+        console.log(schedule);
+           
         }}
+
         function checkNoon(schedule, flag, thu, scheduleComponent,noon) {
           switch (flag) {
             case 0: {
@@ -82,7 +88,8 @@ console.log(thu);
               } else {
                 schedule.setEvening(scheduleComponent);
               }
-              return schedule;
+              break;
+            
             }
             case 1: {
               schedule.setThu(thu);
@@ -94,14 +101,13 @@ console.log(thu);
               } else {
                 schedule.displayEveningNoon(scheduleComponent);
               }
-              return schedule;
-            }
+              break;       
+            }    
           }
-        }
+      }
         const filter =  /-Môn: |-Nhóm: |-Lớp: |-Tiết: |-Phòng: |-GV: |-Đã học: /gi
         function initSche(key,value) {
           if(value !==''){
-                  console.log(value);
                   if(value.includes('-Nhóm: ')){
                     const strFilter = value.replace(filter
                      ,
@@ -112,12 +118,14 @@ console.log(thu);
                  const scheduleComponent = initClass(strFilter);
                  return scheduleComponent;
                   }else{
-                     const arr = value.replace(
-                     filter,
+                    const strFilter = value.replace(filter
+                      ,
                        function (x) {
                          return (x = ",");
                        }
                      );
+                  const scheduleComponent = initClass(strFilter);
+                  return scheduleComponent;
                   }
                     
                 }else
@@ -125,18 +133,32 @@ console.log(thu);
                 
             }     
 
-        function initClass(strFilter) {
-             const arrScheComp = strFilter.split(",");
+        function initClass(strFilter) {     
+             const arrScheComp = strFilter.split(",");    
+             console.log(arrScheComp[6]);
+             if(arrScheComp.length >=8){
+            const  scheduleComponent = new ScheduleComponent(
+                arrScheComp[1],     
+                arrScheComp[3],
+                arrScheComp[4],
+                arrScheComp[5],
+                arrScheComp[6],
+                arrScheComp[7],
+                arrScheComp[2],
+              );
+              return scheduleComponent;
+             }else{
              const scheduleComponent = new ScheduleComponent(
-               arrScheComp[1],
-               arrScheComp[2],
-               arrScheComp[3],
-               arrScheComp[4],
-               arrScheComp[5],
-               arrScheComp[6],
-               arrScheComp[7]
-             );
-          return scheduleComponent;
+                arrScheComp[1],
+                arrScheComp[2],
+                arrScheComp[3],
+                arrScheComp[4],
+                arrScheComp[5], 
+                arrScheComp[6]
+              );
+              return scheduleComponent;
+             }
+         
         }
         
 
