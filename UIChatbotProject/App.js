@@ -7,12 +7,9 @@ import {
   View,
   ScrollView,
   KeyboardAvoidingView,
-  Platform
-   
+  Platform,
+  
 } from "react-native";
-
-import AsyncStorage from "@react-native-community/async-storage";
-
 import MessageBubble from "./components/MessageBubble";
 import { BlurView } from "expo-blur";
 import { Entypo } from "@expo/vector-icons";
@@ -22,7 +19,9 @@ import { createStore } from "redux";
 import { Provider } from "react-redux";
 import { LinearGradient } from "expo-linear-gradient";
 import { combineReducers } from "redux";
-
+import { Schedule } from "./entity/Schedule";
+import {  ScheduleComponent } from "./entity/ScheduleComponent";
+// socket-client
 const io = require("socket.io-client/dist/socket.io.js");
 
 class App extends React.Component {
@@ -30,16 +29,10 @@ class App extends React.Component {
 
   constructor(props) {
     super(props);
-    //{ mine:true , text:"hello"} ,{mine:false , text:"hi from bot"}
-    this.state={
-      arrMessage:[],
-      data:[]
-    }
-      this.getDataStorage();
-     this.removeDataStorage();
+    this.state={arrMessage:[]}
     //https://chatbot-dlu.herokuapp.com
   
-    this.socket = io("http://localhost:5000", {
+    this.socket = io("https://chatbot-dlu.herokuapp.com", {
       transports: ["websocket", "polling", "flashsocket"],
       jsonp: false,
     });
@@ -48,40 +41,106 @@ class App extends React.Component {
     });
 
      this.socket.on("send-schedule", (data) => {
-         console.log(data);
-         //const newMess = {mine:false , text:data};
+       console.log(data);
+       renderSchedule(data)
+         const newMess = {mine:false , text:data};
        });
-  }
-   
-  removeDataStorage = () =>{
-    AsyncStorage.removeItem('data');
-  }
+        function renderSchedule(data) {
+          const [, ...filterData] = [...data];
+          for(const[key,value] of Object.entries(filterData)){
+            // console.log(typeof value);
+           const{0:thu,...rest} = value
 
-  getDataStorage =  ()=>{
-     AsyncStorage.multiGet(['data'],(err, stores)=>{ 
-         if(stores !== null){  
-            
-          stores.map((result,i,store)=>{   
-             if (store[i][1] !== null){
-              let items = JSON.parse(store[i][1]);  
-              items.forEach(el =>{
-                this.state.arrMessage.push(el);
-                this.setState({ arrMessage :this.state.arrMessage});
-              })      
-             }
-          })
-         }else{
-          console.log("empty");
-         }  
-         if(err){
-           console.log(err.message);
-         } 
-      }
-      );
-  }
-  setDataStorage = async (arrMessage)=>{
-     let item = ['data',JSON.stringify(arrMessage)];
-            await AsyncStorage.multiSet([item]);
+console.log(thu);
+            for(const[key,value] of Object.entries(rest)){
+            const schedule = new Schedule();
+
+              const noon =   key.toLocaleLowerCase();
+              const scheduleComponent =initSche(key, value);
+              if (typeof scheduleComponent !== String) {
+               const scheduleAfterCheck=  checkNoon(schedule, 0, thu, scheduleComponent,noon);
+               console.log(scheduleAfterCheck);
+
+              } else {
+               const scheduleAfterCheck=  checkNoon(schedule, 1, thu, scheduleComponent,noon);
+               console.log(scheduleAfterCheck);
+
+              }
+
+               
+          }
+          // console.log(schedule.morning);
+        }}
+        function checkNoon(schedule, flag, thu, scheduleComponent,noon) {
+          switch (flag) {
+            case 0: {
+              schedule.setThu(thu);
+              if (noon === "sáng") {
+                schedule.setMorning(scheduleComponent);
+              } else if (noon === "chiều") {
+                schedule.setAfternoon(scheduleComponent);
+              } else {
+                schedule.setEvening(scheduleComponent);
+              }
+              return schedule;
+            }
+            case 1: {
+              schedule.setThu(thu);
+              if (noon === "sáng") {
+                schedule.displayMorningNoon(scheduleComponent);
+              } else if (noon === "chiều") {
+                schedule.displayAfternoonNoon(scheduleComponent);
+                console.log(schedule.afternoon);
+              } else {
+                schedule.displayEveningNoon(scheduleComponent);
+              }
+              return schedule;
+            }
+          }
+        }
+        const filter =  /-Môn: |-Nhóm: |-Lớp: |-Tiết: |-Phòng: |-GV: |-Đã học: /gi
+        function initSche(key,value) {
+          if(value !==''){
+                  console.log(value);
+                  if(value.includes('-Nhóm: ')){
+                    const strFilter = value.replace(filter
+                     ,
+                      function (x) {
+                        return (x = ",");
+                      }
+                    );
+                 const scheduleComponent = initClass(strFilter);
+                 return scheduleComponent;
+                  }else{
+                     const arr = value.replace(
+                     filter,
+                       function (x) {
+                         return (x = ",");
+                       }
+                     );
+                  }
+                    
+                }else
+                  return "không có tiết"
+                
+            }     
+
+        function initClass(strFilter) {
+             const arrScheComp = strFilter.split(",");
+             const scheduleComponent = new ScheduleComponent(
+               arrScheComp[1],
+               arrScheComp[2],
+               arrScheComp[3],
+               arrScheComp[4],
+               arrScheComp[5],
+               arrScheComp[6],
+               arrScheComp[7]
+             );
+          return scheduleComponent;
+        }
+        
+
+    
   }
 
   render() {
@@ -91,9 +150,8 @@ const show = {
   display: "none",
 };
 
-const addMessage = async (message) =>{
-  this.state.arrMessage.push(message);
-  await this.setDataStorage(this.state.arrMessage);
+const addMessage = (message) =>{
+  this.state.arrMessage.push(message)
 }
 
 const sendMessageReducer = (state=message, action)=>{
@@ -106,9 +164,13 @@ const sendMessageReducer = (state=message, action)=>{
        add_view();
    return {mine:state.mine , text:state.text};
   }
- 
+  // else{
+    
+  //   return {mine:state.mine , text:state.text};
+  // }
   return   {mine:state.mine , text:state.text};;
 }
+
 
 const displaysReducer = (state = show, action) => {
   if (action.type === "SHOW") {
@@ -129,7 +191,6 @@ const reducer = combineReducers({
 
 const add_view = () =>{
   this.setState({ arrMessage :this.state.arrMessage});
-
 }
 
 const store = createStore(reducer);
@@ -137,14 +198,18 @@ const store = createStore(reducer);
 
    let renderMessage = 
      this.state.arrMessage.map((item,key) => {
-     
        if(item.mine){
         return (
         <MessageBubble key ={key}
              mine
-             text = {item.text}      
-          />
-       
+             text = {"Thứ 2 :\nSáng: không có tiết\n"+
+              "Chiều:\n-Môn: Giao tiếp trong kinh doanh (QT2008D)\n"+
+                     "-Nhóm: 01-Lớp: QTK43A\n-Tiết: 7->9\n"+
+                           "-Phòng: A27.06\n"+
+                           "-GV: Hoàng Đức Lâm\n"+
+                           "-Đã học: 19/45 tiết\n"+
+                      "Tối: không có tiết"}      
+          />  
         );
        }
        return (
