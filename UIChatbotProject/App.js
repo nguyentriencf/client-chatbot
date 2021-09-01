@@ -45,12 +45,16 @@ class App extends React.Component {
        renderSchedule(data)
          const newMess = {mine:false , text:data};
        });
-        function renderSchedule(data) {
+       function filterArr(data) {
           const [, ...filterData] = [...data];
-          for(const[key,value] of Object.entries(filterData)){
+          for (const [key, value] of Object.entries(filterData)) {
             // console.log(typeof value);
-           const{0:thu,...rest} = value
-
+            const { 0: thu, ...rest } = value;
+          }
+          return rest;
+       }
+        function renderSchedule(data) {
+         
 console.log(thu);
             for(const[key,value] of Object.entries(rest)){
             const schedule = new Schedule();
@@ -60,7 +64,6 @@ console.log(thu);
               if (typeof scheduleComponent !== String) {
                const scheduleAfterCheck=  checkNoon(schedule, 0, thu, scheduleComponent,noon);
                console.log(scheduleAfterCheck);
-
               } else {
                const scheduleAfterCheck=  checkNoon(schedule, 1, thu, scheduleComponent,noon);
                console.log(scheduleAfterCheck);
@@ -70,7 +73,7 @@ console.log(thu);
                
           }
           // console.log(schedule.morning);
-        }}
+        }
         function checkNoon(schedule, flag, thu, scheduleComponent,noon) {
           switch (flag) {
             case 0: {
@@ -119,10 +122,8 @@ console.log(thu);
                        }
                      );
                   }
-                    
                 }else
                   return "không có tiết"
-                
             }     
 
         function initClass(strFilter) {
@@ -171,17 +172,13 @@ const sendMessageReducer = (state=message, action)=>{
   return   {mine:state.mine , text:state.text};;
 }
 
-
 const displaysReducer = (state = show, action) => {
   if (action.type === "SHOW") {
-    
     return { display: (state.display = "flex") };
   }
   if (action.type === "NONE") {
-    
     return { display: (state.display = "none") };
   }
-
   return state;
 };
 const reducer = combineReducers({
