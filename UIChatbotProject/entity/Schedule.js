@@ -24,14 +24,15 @@ export class Schedule {
     this.evening = evening;
   }
   displayMorningNoon(text) {
-    return text;
+    this.emptyMorning = text;
   }
   displayAfternoonNoon(text) {
-    return text;
+    this.emptyAfternoon = text;
   }
   displayEveningNoon(text) {
-    return text;
+    this.emptyEveningNoon = text;
   }
+
 }
 
 

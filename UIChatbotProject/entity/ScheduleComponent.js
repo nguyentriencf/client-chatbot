@@ -1,5 +1,5 @@
 export class ScheduleComponent {
-  constructor(mon, nhom = "", lop, tiet, phong, gv, dahoc) {
+  constructor(mon,  lop, tiet, phong, gv, dahoc,nhom = "",) {
     this.lop = lop;
     this.mon = mon;
     this.nhom = nhom;
@@ -8,6 +8,6 @@ export class ScheduleComponent {
     this.gv = gv;
     this.dahoc = dahoc;
   }
-  
+ 
  
 }

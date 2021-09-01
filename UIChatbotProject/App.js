@@ -8,7 +8,6 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  
 } from "react-native";
 import MessageBubble from "./components/MessageBubble";
 import { BlurView } from "expo-blur";
@@ -20,203 +19,234 @@ import { Provider } from "react-redux";
 import { LinearGradient } from "expo-linear-gradient";
 import { combineReducers } from "redux";
 import { Schedule } from "./entity/Schedule";
-import {  ScheduleComponent } from "./entity/ScheduleComponent";
+import { ScheduleComponent } from "./entity/ScheduleComponent";
 // socket-client
 const io = require("socket.io-client/dist/socket.io.js");
 
 class App extends React.Component {
-
-
   constructor(props) {
     super(props);
-    this.state={arrMessage:[]}
+    this.state = { arrMessage: [] };
     //https://chatbot-dlu.herokuapp.com
-  
+
     this.socket = io("https://chatbot-dlu.herokuapp.com", {
       transports: ["websocket", "polling", "flashsocket"],
       jsonp: false,
     });
     this.socket.on("connect", () => {
-      console.log("socket connected from server chatbot-dlu");   
+      console.log("socket connected from server chatbot-dlu");
     });
 
-     this.socket.on("send-schedule", (data) => {
-       console.log(data);
-       renderSchedule(data)
-         const newMess = {mine:false , text:data};
-       });
-       function filterArr(data) {
-          const [, ...filterData] = [...data];
-          for (const [key, value] of Object.entries(filterData)) {
-            // console.log(typeof value);
-            const { 0: thu, ...rest } = value;
+    this.socket.on("send-schedule", (data) => {
+      console.log(data);
+     const messageBots= renderSchedule(data);
+     messageBots.forEach(e=>{
+       this.state.arrMessage.push(e);
+       this.setState({ arrMessage: this.state.arrMessage });
+     })
+    });
+
+    function renderSchedule(data) {
+      const [, ...filterData] = [...data];
+      const arrMessage = [];
+      for (const [key, value] of Object.entries(filterData)) {
+        const { 0: thu, ...rest } = value;
+
+        const schedule = new Schedule();
+        for (const [key, value] of Object.entries(rest)) {
+          const noon = key.toLocaleLowerCase();
+          const scheduleComponent = initSche(key, value);
+          if (typeof scheduleComponent !== String) {
+            checkNoon(schedule, 0, thu, scheduleComponent, noon);
+          } else {
+            checkNoon(schedule, 1, thu, scheduleComponent, noon);
           }
-          return rest;
+        }
+         //  "Thứ 2 :\nSáng: không có tiết\n"+
+      //       "Chiều:\n-Môn: Giao tiếp trong kinh doanh (QT2008D)\n"+
+      //              "-Nhóm: 01-Lớp: QTK43A\n-Tiết: 7->9\n"+
+      //                    "-Phòng: A27.06\n"+
+      //                    "-GV: Hoàng Đức Lâm\n"+
+      //                    "-Đã học: 19/45 tiết\n"+
+      //               "Tối: không có tiết"
+       const messageBot = 
+    `${schedule.thu}:
+     ${
+       schedule.morning !== "không có tiết"
+     ?`Sáng:  
+      -Môn: ${schedule.morning.mon}
+      -Nhóm: ${schedule.morning.nhom}
+      -Lớp: ${schedule.morning.lop}
+      -Tiết: ${schedule.morning.tiet}
+      -Phòng: ${schedule.morning.phong}
+      -GV: ${schedule.morning.gv}
+      -Đã học: ${schedule.morning.dahoc}`:`Sáng: ${schedule.morning}`
+        }
+      ${
+        schedule.afternoon !== "không có tiết"
+          ? `Chiều:  
+      -Môn: ${schedule.afternoon.mon}
+      -Nhóm: ${schedule.afternoon.nhom}
+      -Lớp: ${schedule.afternoon.lop}
+      -Tiết: ${schedule.afternoon.tiet}
+      -Phòng: ${schedule.afternoon.phong}
+      -GV: ${schedule.afternoon.gv}
+      -Đã học: ${schedule.afternoon.dahoc}`
+          :`Chiểu: ${schedule.afternoon}`
+      }
+       ${
+         schedule.evening !== "không có tiết"
+           ? `Tối:
+      -Môn: ${schedule.evening.mon}
+      -Nhóm: ${schedule.evening.nhom}
+      -Lớp: ${schedule.evening.lop}
+      -Tiết: ${schedule.evening.tiet}
+      -Phòng: ${schedule.evening.phong}
+      -GV: ${schedule.evening.gv}
+      -Đã học: ${schedule.evening.dahoc}`
+           : `Tối: ${schedule.evening}`
        }
-        function renderSchedule(data) {
-         
-console.log(thu);
-            for(const[key,value] of Object.entries(rest)){
-            const schedule = new Schedule();
+       `;
+      const newMess = { mine: false, text: messageBot };  
+      arrMessage.push(newMess);
+      }
+      return arrMessage;
+    }
 
-              const noon =   key.toLocaleLowerCase();
-              const scheduleComponent =initSche(key, value);
-              if (typeof scheduleComponent !== String) {
-               const scheduleAfterCheck=  checkNoon(schedule, 0, thu, scheduleComponent,noon);
-               console.log(scheduleAfterCheck);
-              } else {
-               const scheduleAfterCheck=  checkNoon(schedule, 1, thu, scheduleComponent,noon);
-               console.log(scheduleAfterCheck);
-
-              }
-
-               
+    function checkNoon(schedule, flag, thu, scheduleComponent, noon) {
+      switch (flag) {
+        case 0: {
+          schedule.setThu(thu);
+          if (noon === "sáng") {
+            schedule.setMorning(scheduleComponent);
+          } else if (noon === "chiều") {
+            schedule.setAfternoon(scheduleComponent);
+          } else {
+            schedule.setEvening(scheduleComponent);
           }
-          // console.log(schedule.morning);
+          break;
         }
-        function checkNoon(schedule, flag, thu, scheduleComponent,noon) {
-          switch (flag) {
-            case 0: {
-              schedule.setThu(thu);
-              if (noon === "sáng") {
-                schedule.setMorning(scheduleComponent);
-              } else if (noon === "chiều") {
-                schedule.setAfternoon(scheduleComponent);
-              } else {
-                schedule.setEvening(scheduleComponent);
-              }
-              return schedule;
-            }
-            case 1: {
-              schedule.setThu(thu);
-              if (noon === "sáng") {
-                schedule.displayMorningNoon(scheduleComponent);
-              } else if (noon === "chiều") {
-                schedule.displayAfternoonNoon(scheduleComponent);
-                console.log(schedule.afternoon);
-              } else {
-                schedule.displayEveningNoon(scheduleComponent);
-              }
-              return schedule;
-            }
+        case 1: {
+          schedule.setThu(thu);
+          if (noon === "sáng") {
+            schedule.displayMorningNoon(scheduleComponent);
+          } else if (noon === "chiều") {
+            schedule.displayAfternoonNoon(scheduleComponent);
+          } else {
+            schedule.displayEveningNoon(scheduleComponent);
           }
+          break;
         }
-        const filter =  /-Môn: |-Nhóm: |-Lớp: |-Tiết: |-Phòng: |-GV: |-Đã học: /gi
-        function initSche(key,value) {
-          if(value !==''){
-                  console.log(value);
-                  if(value.includes('-Nhóm: ')){
-                    const strFilter = value.replace(filter
-                     ,
-                      function (x) {
-                        return (x = ",");
-                      }
-                    );
-                 const scheduleComponent = initClass(strFilter);
-                 return scheduleComponent;
-                  }else{
-                     const arr = value.replace(
-                     filter,
-                       function (x) {
-                         return (x = ",");
-                       }
-                     );
-                  }
-                }else
-                  return "không có tiết"
-            }     
-
-        function initClass(strFilter) {
-             const arrScheComp = strFilter.split(",");
-             const scheduleComponent = new ScheduleComponent(
-               arrScheComp[1],
-               arrScheComp[2],
-               arrScheComp[3],
-               arrScheComp[4],
-               arrScheComp[5],
-               arrScheComp[6],
-               arrScheComp[7]
-             );
+      }
+    }
+    const filter = /-Môn: |-Nhóm: |-Lớp: |-Tiết: |-Phòng: |-GV: |-Đã học: /gi;
+    function initSche(key, value) {
+      if (value !== "") {
+        if (value.includes("-Nhóm: ")) {
+          const strFilter = value.replace(filter, function (x) {
+            return (x = ",");
+          });
+          const scheduleComponent = initClass(strFilter);
+          return scheduleComponent;
+        } else {
+          const strFilter = value.replace(filter, function (x) {
+            return (x = ",");
+          });
+          const scheduleComponent = initClass(strFilter);
           return scheduleComponent;
         }
-        
+      } else return "không có tiết";
+    }
 
-    
+    function initClass(strFilter) {
+      const arrScheComp = strFilter.split(",");
+      if (arrScheComp.length >= 8) {
+        const scheduleComponent = new ScheduleComponent(
+          arrScheComp[1],
+          arrScheComp[3],
+          arrScheComp[4],
+          arrScheComp[5],
+          arrScheComp[6],
+          arrScheComp[7],
+          arrScheComp[2]
+        );
+        return scheduleComponent;
+      } else {
+        const scheduleComponent = new ScheduleComponent(
+          arrScheComp[1],
+          arrScheComp[2],
+          arrScheComp[3],
+          arrScheComp[4],
+          arrScheComp[5],
+          arrScheComp[6]
+        );
+        return scheduleComponent;
+      }
+    }
   }
 
   render() {
-const message = { mine:true, text:''};
+    const message = { mine: true, text: "" };
 
-const show = {
-  display: "none",
-};
+    const show = {
+      display: "none",
+    };
 
-const addMessage = (message) =>{
-  this.state.arrMessage.push(message)
-}
+    const addMessage = (message) => {
+      this.state.arrMessage.push(message);
+    };
 
-const sendMessageReducer = (state=message, action)=>{
-  if(action.type === 'SEND_MESSAGE') {
- 
-    const newMess = {mine:state.mine , text:state.text};
-      //input
-      this.socket.emit("scheduleWeek", "thời khóa biểu tuần này");
-       addMessage(newMess);
-       add_view();
-   return {mine:state.mine , text:state.text};
-  }
-  // else{
-    
-  //   return {mine:state.mine , text:state.text};
-  // }
-  return   {mine:state.mine , text:state.text};;
-}
+    const sendMessageReducer = (state = message, action) => {
+      if (action.type === "SEND_MESSAGE") {
+        const newMess = { mine: state.mine, text: state.text };
+        //input
+        this.socket.emit("scheduleWeek", "thời khóa biểu tuần này");
+        addMessage(newMess);
+        add_view();
+        return { mine: state.mine, text: state.text };
+      }
+      // else{
 
-const displaysReducer = (state = show, action) => {
-  if (action.type === "SHOW") {
-    return { display: (state.display = "flex") };
-  }
-  if (action.type === "NONE") {
-    return { display: (state.display = "none") };
-  }
-  return state;
-};
-const reducer = combineReducers({
-  displaysReducer,
-  sendMessageReducer
-});
+      //   return {mine:state.mine , text:state.text};
+      // }
+      return { mine: state.mine, text: state.text };
+    };
 
-const add_view = () =>{
-  this.setState({ arrMessage :this.state.arrMessage});
-}
-
-const store = createStore(reducer);
-
-
-   let renderMessage = 
-     this.state.arrMessage.map((item,key) => {
-       if(item.mine){
-        return (
-        <MessageBubble key ={key}
-             mine
-             text = {"Thứ 2 :\nSáng: không có tiết\n"+
-              "Chiều:\n-Môn: Giao tiếp trong kinh doanh (QT2008D)\n"+
-                     "-Nhóm: 01-Lớp: QTK43A\n-Tiết: 7->9\n"+
-                           "-Phòng: A27.06\n"+
-                           "-GV: Hoàng Đức Lâm\n"+
-                           "-Đã học: 19/45 tiết\n"+
-                      "Tối: không có tiết"}      
-          />  
-        );
-       }
-       return (
-        <MessageBubble key={key}
-           not_mine
-           text = {item.text}
-        />
-      );  
+    const displaysReducer = (state = show, action) => {
+      if (action.type === "SHOW") {
+        return { display: (state.display = "flex") };
+      }
+      if (action.type === "NONE") {
+        return { display: (state.display = "none") };
+      }
+      return state;
+    };
+    const reducer = combineReducers({
+      displaysReducer,
+      sendMessageReducer,
     });
-   
+
+    const add_view = () => {
+      this.setState({ arrMessage: this.state.arrMessage });
+    };
+
+    const store = createStore(reducer);
+
+    let renderMessage = this.state.arrMessage.map((item, key) => {
+      if (item.mine) {
+        return (
+          <MessageBubble
+            key={key}
+            mine
+            text={
+              item.text
+            }
+          />
+        );
+      }
+      return <MessageBubble key={key} not_mine text={item.text} />;
+    });
+
     return (
       <Provider store={store}>
         <LinearGradient
@@ -235,19 +265,25 @@ const store = createStore(reducer);
               </View>
             </View>
             <View style={styles.body}>
-              <ScrollView showsVerticalScrollIndicator ={false} style={styles.scrollView}  
-               ref={ref => {this.scrollView = ref}}
-               onContentSizeChange={() => this.scrollView.scrollToEnd({animated: true})}
-               >      
-                {renderMessage}  
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                style={styles.scrollView}
+                ref={(ref) => {
+                  this.scrollView = ref;
+                }}
+                onContentSizeChange={() =>
+                  this.scrollView.scrollToEnd({ animated: true })
+                }
+              >
+                {renderMessage}
               </ScrollView>
             </View>
-           
-            <View style={styles.footer} >
+
+            <View style={styles.footer}>
               <Input />
-              <Send/>
+              <Send />
             </View>
-           </KeyboardAvoidingView> 
+          </KeyboardAvoidingView>
         </LinearGradient>
       </Provider>
     );
@@ -262,12 +298,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     resizeMode: "cover",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   footer: {
-    flex: 0.8 ,
-    backgroundColor:"#1D1F2C"
-   
+    flex: 0.8,
+    backgroundColor: "#1D1F2C",
   },
   header: {
     flex: 1.8,
@@ -277,11 +312,9 @@ const styles = StyleSheet.create({
   body: {
     flex: 7.7,
     backgroundColor: "#1D1F2C",
-   
   },
   scrollView: {
-    marginHorizontal: 10
-   
+    marginHorizontal: 10,
   },
   textHeader: {
     color: "white",
@@ -290,12 +323,12 @@ const styles = StyleSheet.create({
   },
   ViewOnline: {
     flexDirection: "row",
-    alignItems: "center"
+    alignItems: "center",
   },
   textOnline: {
     color: "#777980",
     fontSize: 14,
     left: -10,
-    position:'relative'
+    position: "relative",
   },
 });
