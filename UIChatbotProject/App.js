@@ -20,7 +20,7 @@ import { Provider } from "react-redux";
 import { LinearGradient } from "expo-linear-gradient";
 import { combineReducers } from "redux";
 import { Schedule } from "./entity/Schedule";
-import { ScheduleComponent } from "./entity/ScheduleComponent";
+import {  ScheduleComponent } from "./entity/ScheduleComponent";
 // socket-client
 const io = require("socket.io-client/dist/socket.io.js");
 
@@ -32,7 +32,7 @@ class App extends React.Component {
     this.state={arrMessage:[]}
     //https://chatbot-dlu.herokuapp.com
   
-    this.socket = io("http://localhost:5000", {
+    this.socket = io("https://chatbot-dlu.herokuapp.com", {
       transports: ["websocket", "polling", "flashsocket"],
       jsonp: false,
     });
@@ -41,29 +41,106 @@ class App extends React.Component {
     });
 
      this.socket.on("send-schedule", (data) => {
+       console.log(data);
+       renderSchedule(data)
          const newMess = {mine:false , text:data};
        });
         function renderSchedule(data) {
           const [, ...filterData] = [...data];
           for(const[key,value] of Object.entries(filterData)){
-            console.log(typeof value);
-            const{fir,...last} = value
-            for(const[key,value] of Object.entries(last)){
-              console.log(value);
+            // console.log(typeof value);
+           const{0:thu,...rest} = value
+
+console.log(thu);
+            for(const[key,value] of Object.entries(rest)){
+            const schedule = new Schedule();
+
+              const noon =   key.toLocaleLowerCase();
+              const scheduleComponent =initSche(key, value);
+              if (typeof scheduleComponent !== String) {
+               const scheduleAfterCheck=  checkNoon(schedule, 0, thu, scheduleComponent,noon);
+               console.log(scheduleAfterCheck);
+
+              } else {
+               const scheduleAfterCheck=  checkNoon(schedule, 1, thu, scheduleComponent,noon);
+               console.log(scheduleAfterCheck);
+
+              }
+
+               
+          }
+          // console.log(schedule.morning);
+        }}
+        function checkNoon(schedule, flag, thu, scheduleComponent,noon) {
+          switch (flag) {
+            case 0: {
+              schedule.setThu(thu);
+              if (noon === "sáng") {
+                schedule.setMorning(scheduleComponent);
+              } else if (noon === "chiều") {
+                schedule.setAfternoon(scheduleComponent);
+              } else {
+                schedule.setEvening(scheduleComponent);
+              }
+              return schedule;
+            }
+            case 1: {
+              schedule.setThu(thu);
+              if (noon === "sáng") {
+                schedule.displayMorningNoon(scheduleComponent);
+              } else if (noon === "chiều") {
+                schedule.displayAfternoonNoon(scheduleComponent);
+                console.log(schedule.afternoon);
+              } else {
+                schedule.displayEveningNoon(scheduleComponent);
+              }
+              return schedule;
             }
           }
         }
+        const filter =  /-Môn: |-Nhóm: |-Lớp: |-Tiết: |-Phòng: |-GV: |-Đã học: /gi
+        function initSche(key,value) {
+          if(value !==''){
+                  console.log(value);
+                  if(value.includes('-Nhóm: ')){
+                    const strFilter = value.replace(filter
+                     ,
+                      function (x) {
+                        return (x = ",");
+                      }
+                    );
+                 const scheduleComponent = initClass(strFilter);
+                 return scheduleComponent;
+                  }else{
+                     const arr = value.replace(
+                     filter,
+                       function (x) {
+                         return (x = ",");
+                       }
+                     );
+                  }
+                    
+                }else
+                  return "không có tiết"
+                
+            }     
 
-        renderSchedule([
-          1,
-          {
-            0: "Thứ 3",
-            Sáng: "",
-            Chiều:
-              "-Môn: Hệ quản trị cơ sở dữ liệu (CT4218D)-Nhóm: 01-Lớp: CTK42-PM-Tiết: 7->10-Phòng: A31.105-GV: Đoàn Minh Khuê-Đã học: 0/30 tiết",
-            Tối: "",
-          },
-        ]);
+        function initClass(strFilter) {
+             const arrScheComp = strFilter.split(",");
+             const scheduleComponent = new ScheduleComponent(
+               arrScheComp[1],
+               arrScheComp[2],
+               arrScheComp[3],
+               arrScheComp[4],
+               arrScheComp[5],
+               arrScheComp[6],
+               arrScheComp[7]
+             );
+          return scheduleComponent;
+        }
+        
+
+    
   }
 
   render() {
