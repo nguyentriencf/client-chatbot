@@ -33,8 +33,8 @@ class App extends React.Component {
       arrMessage: [], 
       data:[]
        };
-    this.getDataStorage();
-     //  this.removeDataStorage();
+   this.getDataStorage();
+      // this.removeDataStorage();
       
     this.socket = io("https://chatbot-dlu.herokuapp.com", {
       transports: ["websocket", "polling", "flashsocket"],
@@ -46,8 +46,8 @@ class App extends React.Component {
 
     this.socket.on("send-schedule", (data) => {
       if(Array.isArray(data)){
-         console.log("Fdf");
         const messageBots= this.renderSchedule(data);
+        
         messageBots.forEach(e=>{
           this.renderFromBot(e.text);
         })
