@@ -20,6 +20,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { combineReducers } from "redux";
 import { Schedule } from "./entity/Schedule";
 import { ScheduleComponent } from "./entity/ScheduleComponent";
+import lookup from "socket.io-client";
 // socket-client
 const io = require("socket.io-client/dist/socket.io.js");
 
@@ -69,44 +70,41 @@ class App extends React.Component {
       //                    "-GV: Hoàng Đức Lâm\n"+
       //                    "-Đã học: 19/45 tiết\n"+
       //               "Tối: không có tiết"
-       const messageBot = 
-    `${schedule.thu}:
-     ${
-       schedule.morning !== "không có tiết"
-     ?`Sáng:  
-      -Môn: ${schedule.morning.mon}
-      -Nhóm: ${schedule.morning.nhom}
-      -Lớp: ${schedule.morning.lop}
-      -Tiết: ${schedule.morning.tiet}
-      -Phòng: ${schedule.morning.phong}
-      -GV: ${schedule.morning.gv}
-      -Đã học: ${schedule.morning.dahoc}`:`Sáng: ${schedule.morning}`
-        }
-      ${
-        schedule.afternoon !== "không có tiết"
-          ? `Chiều:  
-      -Môn: ${schedule.afternoon.mon}
-      -Nhóm: ${schedule.afternoon.nhom}
-      -Lớp: ${schedule.afternoon.lop}
-      -Tiết: ${schedule.afternoon.tiet}
-      -Phòng: ${schedule.afternoon.phong}
-      -GV: ${schedule.afternoon.gv}
-      -Đã học: ${schedule.afternoon.dahoc}`
-          :`Chiểu: ${schedule.afternoon}`
-      }
-       ${
-         schedule.evening !== "không có tiết"
-           ? `Tối:
-      -Môn: ${schedule.evening.mon}
-      -Nhóm: ${schedule.evening.nhom}
-      -Lớp: ${schedule.evening.lop}
-      -Tiết: ${schedule.evening.tiet}
-      -Phòng: ${schedule.evening.phong}
-      -GV: ${schedule.evening.gv}
-      -Đã học: ${schedule.evening.dahoc}`
-           : `Tối: ${schedule.evening}`
-       }
-       `;
+      const messageBot =""; 
+      const messageMonning = schedule.thu +":\n"+
+                                       "Sáng:";
+      const scheduleDetailMorning = schedule.morning !== "không có tiết" ? 
+                                     "\n-Môn: " + schedule.morning.mon+"\n"+
+                                     "-Nhóm: "+ schedule.morning.nhom+"\n"+
+                                     "-Tiết: "+ schedule.morning.tiet+"\n"+
+                                     "-Phòng: "+ schedule.morning.phong+"\n"+
+                                     "-GV: "+ schedule.morning.gv+"\n"+
+                                     "-Đã học: "+ schedule.morning.dahoc+"\n"
+                                                        : " không có tiết\n";
+          messageMonning += scheduleDetailMorning;
+     const messageBotAfternoon = "Chiều:";
+     const scheduleDetailAfterNoon = schedule.afternoon !== "không có tiết" ? 
+                                "\n-Môn: " + schedule.afternoon.mon+"\n"+
+                                "-Nhóm: "+ schedule.afternoon.nhom+"\n"+
+                                "-Tiết: "+ schedule.afternoon.tiet+"\n"+
+                                "-Phòng: "+ schedule.afternoon.phong+"\n"+
+                                "-GV: "+ schedule.afternoon.gv+"\n"+
+                                "-Đã học: "+ schedule.afternoon.dahoc+"\n"
+                             : " không có tiết\n";  
+          messageBotAfternoon += scheduleDetailAfterNoon;
+    const messageBotEvening = "Tối:";
+    const scheduleDetailEvening = schedule.evening !== "không có tiết" ? 
+                             "\n-Môn: " + schedule.evening.mon+"\n"+
+                             "-Nhóm: "+ schedule.evening.nhom+"\n"+
+                             "-Tiết: "+ schedule.evening.tiet+"\n"+
+                             "-Phòng: "+ schedule.evening.phong+"\n"+
+                             "-GV: "+ schedule.evening.gv+"\n"+
+                             "-Đã học: "+ schedule.evening.dahoc+"\n"
+                              : " không có tiết\n";  
+          messageBotEvening += scheduleDetailEvening;
+
+          messageBot = messageMonning + messageBotAfternoon + messageBotEvening;
+  
       const newMess = { mine: false, text: messageBot };  
       arrMessage.push(newMess);
       }
