@@ -33,9 +33,9 @@ class App extends React.Component {
       arrMessage: [], 
       data:[]
        };
-   // this.getDataStorage();
-       this.removeDataStorage();
-       AsyncStorage.removeItem('mssv');
+    this.getDataStorage();
+     //  this.removeDataStorage();
+      
     //https://chatbot-dlu.herokuapp.com
 
     this.socket = io("http://localhost:5000", {
@@ -61,6 +61,7 @@ class App extends React.Component {
   }
     removeDataStorage = () =>{
       AsyncStorage.removeItem('data');
+      AsyncStorage.removeItem('mssv');
     }
     getDataStorage = ()=>{
       AsyncStorage.multiGet(['data'],(err, stores)=>{ 
