@@ -36,9 +36,7 @@ class App extends React.Component {
     this.getDataStorage();
      //  this.removeDataStorage();
       
-    //https://chatbot-dlu.herokuapp.com
-
-    this.socket = io("http://localhost:5000", {
+    this.socket = io("https://chatbot-dlu.herokuapp.com", {
       transports: ["websocket", "polling", "flashsocket"],
       jsonp: false,
     });
