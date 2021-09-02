@@ -9,6 +9,8 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import AsyncStorage from "@react-native-community/async-storage";
+
 import MessageBubble from "./components/MessageBubble";
 import { BlurView } from "expo-blur";
 import { Entypo } from "@expo/vector-icons";
@@ -20,17 +22,23 @@ import { LinearGradient } from "expo-linear-gradient";
 import { combineReducers } from "redux";
 import { Schedule } from "./entity/Schedule";
 import { ScheduleComponent } from "./entity/ScheduleComponent";
-import lookup from "socket.io-client";
+
 // socket-client
 const io = require("socket.io-client/dist/socket.io.js");
 
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { arrMessage: [] };
+    this.state = { 
+      arrMessage: [], 
+      data:[]
+       };
+   // this.getDataStorage();
+       this.removeDataStorage();
+       AsyncStorage.removeItem('mssv');
     //https://chatbot-dlu.herokuapp.com
 
-    this.socket = io("https://chatbot-dlu.herokuapp.com", {
+    this.socket = io("http://localhost:5000", {
       transports: ["websocket", "polling", "flashsocket"],
       jsonp: false,
     });
@@ -39,15 +47,67 @@ class App extends React.Component {
     });
 
     this.socket.on("send-schedule", (data) => {
-      console.log(data);
-     const messageBots= renderSchedule(data);
-     messageBots.forEach(e=>{
-       this.state.arrMessage.push(e);
-       this.setState({ arrMessage: this.state.arrMessage });
-     })
+      if(Array.isArray(data)){
+         console.log("Fdf");
+        const messageBots= this.renderSchedule(data);
+        messageBots.forEach(e=>{
+          this.renderFromBot(e.text);
+        })
+      }else{
+       this.renderFromBot(data);
+      }
+     
     });
-
-    function renderSchedule(data) {
+  }
+    removeDataStorage = () =>{
+      AsyncStorage.removeItem('data');
+    }
+    getDataStorage = ()=>{
+      AsyncStorage.multiGet(['data'],(err, stores)=>{ 
+          if(stores !== null){  
+             
+           stores.map((result,i,store)=>{   
+              if (store[i][1] !== null){
+               let items = JSON.parse(store[i][1]);  
+               items.forEach(el =>{
+                 this.state.arrMessage.push(el);
+                 this.setState({ arrMessage :this.state.arrMessage});
+               })      
+              }
+           })
+          }else{
+           console.log("empty");
+          }  
+          if(err){
+            console.log(err.message);
+          } 
+       }
+       );
+   }
+   setDataStorage = async (arrMessage)=>{
+      let item = ['data',JSON.stringify(arrMessage)];
+             await AsyncStorage.multiSet([item]);
+   }
+   setMSSVDataStorage = async (mssv)=>{
+    let value = ['mssv',JSON.stringify(mssv)];
+           await AsyncStorage.multiSet([value]);
+ }
+ getMSSVDataStorage = ()=>{
+   const mssv = AsyncStorage.multiGet(['mssv']);
+    return mssv;
+}
+ TryParseInt(str,defaultValue) {
+  var retValue = defaultValue;
+  if(str !== null) {
+      if(str.length > 0) {
+          if (!isNaN(str)) {
+              retValue = parseInt(str);
+          }
+      }
+  }
+  return retValue;
+}
+     renderSchedule(data) {
       const [, ...filterData] = [...data];
       const arrMessage = [];
       for (const [key, value] of Object.entries(filterData)) {
@@ -56,11 +116,11 @@ class App extends React.Component {
         const schedule = new Schedule();
         for (const [key, value] of Object.entries(rest)) {
           const noon = key.toLocaleLowerCase();
-          const scheduleComponent = initSche(key, value);
+          const scheduleComponent = this.initSche(key, value);
           if (typeof scheduleComponent !== String) {
-            checkNoon(schedule, 0, thu, scheduleComponent, noon);
+            this.checkNoon(schedule, 0, thu, scheduleComponent, noon);
           } else {
-            checkNoon(schedule, 1, thu, scheduleComponent, noon);
+            this.checkNoon(schedule, 1, thu, scheduleComponent, noon);
           }
         }
       
@@ -105,7 +165,7 @@ class App extends React.Component {
       return arrMessage;
     }
 
-    function checkNoon(schedule, flag, thu, scheduleComponent, noon) {
+     checkNoon(schedule, flag, thu, scheduleComponent, noon) {
       switch (flag) {
         case 0: {
           schedule.setThu(thu);
@@ -131,26 +191,28 @@ class App extends React.Component {
         }
       }
     }
-    const filter = /-Môn: |-Nhóm: |-Lớp: |-Tiết: |-Phòng: |-GV: |-Đã học: /gi;
-    function initSche(key, value) {
+   
+     initSche(key, value) {
+      const filter = /-Môn: |-Nhóm: |-Lớp: |-Tiết: |-Phòng: |-GV: |-Đã học: /gi;
+
       if (value !== "") {
         if (value.includes("-Nhóm: ")) {
           const strFilter = value.replace(filter, function (x) {
             return (x = ",");
           });
-          const scheduleComponent = initClass(strFilter);
+          const scheduleComponent = this.initClass(strFilter);
           return scheduleComponent;
         } else {
           const strFilter = value.replace(filter, function (x) {
             return (x = ",");
           });
-          const scheduleComponent = initClass(strFilter);
+          const scheduleComponent = this.initClass(strFilter);
           return scheduleComponent;
         }
       } else return "không có tiết";
     }
 
-    function initClass(strFilter) {
+     initClass(strFilter) {
       const arrScheComp = strFilter.split(",");
       if (arrScheComp.length >= 8) {
         const scheduleComponent = new ScheduleComponent(
@@ -175,32 +237,87 @@ class App extends React.Component {
         return scheduleComponent;
       }
     }
-  }
+    
+     addMessage = async (message) =>{
+      this.state.arrMessage.push(message);
+      await this.setDataStorage(this.state.arrMessage);
+    }
+    add_view() {
+      this.setState({ arrMessage: this.state.arrMessage });
+    };
+   checkExistMssv(mssv){
+    if(mssv !== null){
+       console.log(mssv);
+       let value =null;
+      mssv.map((result,i,store)=>{   
+         if (store[i][1] !== null){
+           console.log("io");
+         value =store[i][1];   
+         }
+      })
+      return value;
+     }
+      return null;       
+     
+   }
+   renderFromUser(isMine, text){
+    const newMess = { mine: isMine, text: text };
+    this.addMessage(newMess);
+    this.add_view();
+   }
 
+   renderFromBot(text){
+    const newMess = { mine: false, text: text };
+    this.addMessage(newMess);
+    this.add_view();
+   }
   render() {
     const message = { mine: true, text: "" };
 
     const show = {
       display: "none",
     };
-
-    const addMessage = (message) => {
-      this.state.arrMessage.push(message);
-    };
-
-    const sendMessageReducer = (state = message, action) => {
+    const sendMessageReducer =  (state = message, action) => {
       if (action.type === "SEND_MESSAGE") {
-        const newMess = { mine: state.mine, text: state.text };
-        //input
-        this.socket.emit("scheduleWeek", "thời khóa biểu tuần này");
-        addMessage(newMess);
-        add_view();
+        if(state.text.trim() === ""){
+          return;
+        }
+        const isMssv =  this.TryParseInt(state.text.trim(),0);
+
+        this.renderFromUser(state.mine,state.text);
+
+        if(isMssv !== 0 && isMssv !== null){
+           if(isMssv.toString().length === 7)
+      {
+        this.getMSSVDataStorage().then(kq =>{
+          const existMssv = this.checkExistMssv(kq);
+          
+          if(existMssv !== null){
+                 this.renderFromBot("tôi không hiểu ý bạn!" );
+          }else{
+                this.setMSSVDataStorage(isMssv);
+                 this.renderFromBot("Xin chào\nBạn đã có thể xem được thời khóa biểu!");
+          }
+        });
+       
+      }else{
+          this.renderFromBot("MSSV phải 7 chữ số!");
+        }
         return { mine: state.mine, text: state.text };
       }
-      // else{
+       // check input
+       this.getMSSVDataStorage().then(kq =>{
+        const existMssv = this.checkExistMssv(kq);
+        if(existMssv === null){
+          this.renderFromBot("Bạn phải cung cấp MSSV trước khi xem thời khóa biểu(vd:1812866)!");
+   }else{ 
+           this.socket.emit("scheduleWeek", {mssv:existMssv , message:state.text.trim()});  
+   } 
+      });
 
-      //   return {mine:state.mine , text:state.text};
-      // }
+       
+        return { mine: state.mine, text: state.text };
+      }
       return { mine: state.mine, text: state.text };
     };
 
@@ -218,10 +335,7 @@ class App extends React.Component {
       sendMessageReducer,
     });
 
-    const add_view = () => {
-      this.setState({ arrMessage: this.state.arrMessage });
-    };
-
+    
     const store = createStore(reducer);
 
     let renderMessage = this.state.arrMessage.map((item, key) => {
@@ -281,6 +395,7 @@ class App extends React.Component {
     );
   }
 }
+
 
 export default App;
 const styles = StyleSheet.create({
