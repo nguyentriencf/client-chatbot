@@ -33,9 +33,8 @@ class App extends React.Component {
       arrMessage: [], 
       data:[]
        };
-   this.getDataStorage();
-      // this.removeDataStorage();
-      
+  this.getDataStorage();
+
     this.socket = io("https://chatbot-dlu.herokuapp.com", {
       transports: ["websocket", "polling", "flashsocket"],
       jsonp: false,
@@ -59,7 +58,7 @@ class App extends React.Component {
   }
     removeDataStorage = () =>{
       AsyncStorage.removeItem('data');
-      AsyncStorage.removeItem('mssv');
+  
     }
     getDataStorage = ()=>{
       AsyncStorage.multiGet(['data'],(err, stores)=>{ 
@@ -241,17 +240,23 @@ class App extends React.Component {
       this.state.arrMessage.push(message);
       await this.setDataStorage(this.state.arrMessage);
     }
+
     add_view() {
       this.setState({ arrMessage: this.state.arrMessage });
     };
-   checkExistMssv(mssv){
+    
+   checkExistMssv(mssv,isUpdate){
+     console.log(isUpdate);
     if(mssv !== null){
        console.log(mssv);
        let value =null;
       mssv.map((result,i,store)=>{   
-         if (store[i][1] !== null){
-           console.log("io");
-         value =store[i][1];   
+         if (store[i][1] !== null && isUpdate == true){
+        console.log(store[i][1]); 
+          
+         AsyncStorage.removeItem('mssv');
+         }else{
+          value =store[i][1]; 
          }
       })
       return value;
@@ -270,6 +275,7 @@ class App extends React.Component {
     this.addMessage(newMess);
     this.add_view();
    }
+
   render() {
     const message = { mine: true, text: "" };
 
@@ -278,19 +284,57 @@ class App extends React.Component {
     };
     const sendMessageReducer =  (state = message, action) => {
       if (action.type === "SEND_MESSAGE") {
-        if(state.text.trim() === ""){
-          return;
-        }
-        const isMssv =  this.TryParseInt(state.text.trim(),0);
-
         this.renderFromUser(state.mine,state.text);
+
+        if(state.text.trim() === ""){
+          return { mine: state.mine, text: state.text };
+        }
+        if(state.text.trim().includes("xóa")){
+          this.renderFromBot("Đang xử lý...!");
+          setTimeout(() => {
+            this.removeDataStorage();
+            this.state.arrMessage =[];
+            this.add_view();
+        
+          }, 2000);
+          return { mine: state.mine, text: state.text };
+        }
+
+        if(state.text.trim().includes("cập nhật")){
+          this.renderFromBot("Mã số bạn muốn cập nhật là gì?");
+          return { mine: state.mine, text: state.text };
+        
+        }
+        
+        const isMssv =  this.TryParseInt(state.text.trim(),0);
 
         if(isMssv !== 0 && isMssv !== null){
            if(isMssv.toString().length === 7)
       {
         this.getMSSVDataStorage().then(kq =>{
-          const existMssv = this.checkExistMssv(kq);
+          let existMssv =null;
+         const messageBot = this.state.arrMessage.filter(e =>{
+                 return e.mine === false;
+          })
+          console.log(messageBot);
+          if(messageBot.length !==0 ){
+           
+            if (messageBot[messageBot.length -1].text.includes("cập nhật")){
           
+              existMssv  = this.checkExistMssv(kq,true);//clear storage mssv ;return null;
+              this.renderFromBot("Đang xử lý...!");      
+              setTimeout(() => {
+                this.setMSSVDataStorage(isMssv);
+                }, 1000);   
+              setTimeout(() => {
+              this.renderFromBot("Cập nhật thành công!");
+              this.renderFromBot("Xin chào\nBạn đã có thể xem được thời khóa biểu!");
+              }, 2000);
+              return { mine: state.mine, text: state.text };
+          }
+          }
+            existMssv = this.checkExistMssv(kq,false);
+           
           if(existMssv !== null){
                  this.renderFromBot("tôi không hiểu ý bạn!" );
           }else{
@@ -310,11 +354,11 @@ class App extends React.Component {
         if(existMssv === null){
           this.renderFromBot("Bạn phải cung cấp MSSV trước khi xem thời khóa biểu(vd:1812866)!");
    }else{ 
+         this.renderFromBot("Đang xử lý bạn đợi tí!");
            this.socket.emit("scheduleWeek", {mssv:existMssv , message:state.text.trim()});  
    } 
       });
 
-       
         return { mine: state.mine, text: state.text };
       }
       return { mine: state.mine, text: state.text };
@@ -334,7 +378,6 @@ class App extends React.Component {
       sendMessageReducer,
     });
 
-    
     const store = createStore(reducer);
 
     let renderMessage = this.state.arrMessage.map((item, key) => {
