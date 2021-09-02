@@ -63,13 +63,7 @@ class App extends React.Component {
             checkNoon(schedule, 1, thu, scheduleComponent, noon);
           }
         }
-         //  "Thứ 2 :\nSáng: không có tiết\n"+
-      //       "Chiều:\n-Môn: Giao tiếp trong kinh doanh (QT2008D)\n"+
-      //              "-Nhóm: 01-Lớp: QTK43A\n-Tiết: 7->9\n"+
-      //                    "-Phòng: A27.06\n"+
-      //                    "-GV: Hoàng Đức Lâm\n"+
-      //                    "-Đã học: 19/45 tiết\n"+
-      //               "Tối: không có tiết"
+      
       const messageBot =""; 
       const messageMonning = schedule.thu +":\n"+
                                        "Sáng:";
