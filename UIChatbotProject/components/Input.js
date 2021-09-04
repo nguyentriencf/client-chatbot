@@ -1,8 +1,6 @@
 import React,{useState} from "react";
 import { View, StyleSheet, TextInput, ScrollView, FlatList, TouchableOpacity,  } from "react-native";
 import { IconButton, Colors } from "react-native-paper";
-// import { Item } from "react-native-paper/lib/typescript/components/List/List";
-// import { color } from "react-native/Libraries/Components/View/ReactNativeStyleAttributes";
 import { connect } from "react-redux";
 
 class Input extends React.Component {
@@ -28,16 +26,6 @@ class Input extends React.Component {
 
     return (
       <View style={styles.container}>
-        {/* <ScrollView
-          showsHorizontalScrollIndicator={false}
-          // ref={(ref) => {
-          //   this.scrollView = ref;
-          // }}
-          // onContentSizeChange={() =>
-          //   this.scrollView.scrollToEnd({ animated: true })
-          // }
-        ></ScrollView> */}
-        
         <TextInput
           placeholder="Type..."
           style={styles.input}
@@ -45,6 +33,7 @@ class Input extends React.Component {
             this.OnInputText(TextInputValue);
           }}
           value={this.props.myMessage.text}
+        
         />
 
         <IconButton

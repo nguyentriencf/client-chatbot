@@ -1,7 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
 import HintMessage from "./components/HintMessage";
-
+import {connect} from 'react-redux'
 import {
   StyleSheet,
   Text,
@@ -55,8 +55,7 @@ class App extends React.Component {
         })
       }else{
        this.renderFromBot(data);
-      }
-     
+      }   
     });
   }
     removeDataStorage = () =>{
@@ -281,13 +280,32 @@ class App extends React.Component {
   
    
   render() {
-    
-
     const message = { mine: true, text: "" };
 
     const show = {
       display: "none",
     };
+    const dataHintMessage = [
+  { id:1,mine:true, text: "TKB hôm nay" },
+  { id:2,mine:true, text: "TKB ngày mai" },
+  { id:3,mine:true, text: "TKB tuần sau" },
+  { id:4,mine:true, text: "TKB Tuần sau nữa" }]
+
+    const getListHintMessage = ()=>{
+      console.log(this.myHintMessage);
+      return this.myHintMessage;
+    }
+    const hintMessageReducer = (state=dataHintMessage, action) =>{
+      if(action.type==="HINT_SENT_MESSAGE"){
+        return state.map((e)=>{
+          if(e.id ===action.id){
+            return this.renderFromUser(e.mine,e.text)
+          }
+         
+        }) 
+      }
+       return state;
+    }
     const sendMessageReducer =  (state = message, action) => {
       if (action.type === "SEND_MESSAGE") {
         this.renderFromUser(state.mine,state.text);
@@ -381,6 +399,7 @@ class App extends React.Component {
     const reducer = combineReducers({
       displaysReducer,
       sendMessageReducer,
+      hintMessageReducer
     });
 
     const store = createStore(reducer);
@@ -418,7 +437,7 @@ class App extends React.Component {
               </View>
             </View>
             <View style={styles.body}>
-              <HintMessage/>
+              {/* <HintMessage/> */}
               <ScrollView
                 showsVerticalScrollIndicator={false}
                 style={styles.scrollView}
@@ -431,8 +450,12 @@ class App extends React.Component {
               >
                 {renderMessage}
               </ScrollView>
+              
             </View>
             <View style={styles.footer}>
+              <FlatList
+              data={getListHintMessage()}
+              renderItem={({item}) =><HintMessage text={item}/>}/>
               <Input />
               <Send />
             </View>
@@ -444,7 +467,7 @@ class App extends React.Component {
 }
 
 
-export default App;
+export default App
 const styles = StyleSheet.create({
   voidingView: {
     flex: 1,
@@ -485,5 +508,11 @@ const styles = StyleSheet.create({
     left: -10,
     position: "relative",
   },
- 
+  hintText: {
+    color: "#777980",
+    fontSize: 14,
+    left: -10,
+    position: "relative",
+    justifyContent:'center'
+  },
 });

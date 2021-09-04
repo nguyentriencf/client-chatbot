@@ -1,5 +1,6 @@
 import React from "react";
 import { render } from "react-dom";
+import { connect } from "react-redux";
 import {
     View,
  Text,
@@ -9,40 +10,31 @@ import {
  ScrollView
 } from "react-native";
 
-const HintMessage = () =>{  
-        const data = [
-          { text: "TKB hôm nay" },
-          { text: "TKB ngày mai" },
-          { text: "TKB tuần sau" },
-          { text: "TKB Tuần sau nữa" },
-        ];
       
+const HintMessage = (props) =>{   
+   const { id, text } = this.props.dataHintMessage;
+   
     return (
       <View>
-        <FlatList
-          data={data}
-          renderItem={(item) => {
-            <Text>{item.text}</Text>;
-          }}
-        />
+        <TouchableOpacity>
+          <Text>
+            {text}
+          </Text>
+        </TouchableOpacity>
       </View>
-      // <FlatList
-      // data={data}
-      // renderItem={({item})=>{
-      //         <Text style={styles.textItem}>
-      //             {item.text}
-      //         </Text>
-      // }}/>
     );
 }
 
 const styles = StyleSheet.create({
   textItem: {
-    color: "white",
+    color: "black",
     height: 50,
     width: 100,
     borderColor: "white",
-    borderRadius:30
+    borderRadius:30,
+    backgroundColor:'white',
+    justifyContent:'center'
+    
   },
 });
-export default HintMessage
+export default connect()(HintMessage)
