@@ -20,7 +20,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { combineReducers } from "redux";
 import {renderSchedule} from "./module/ScheduleModule";
 import {getDataStorage,setDataStorage,removeDataStorage,
-        getMSSVDataStorage,setMSSVDataStorage,checkExistMssv} from "./Storage/dataStorage";
+        getMSSVDataStorage,setMSSVDataStorage,removeMSSVStorage,
+        checkExistMssv} from "./Storage/dataStorage";
 // socket-client
 const io = require("socket.io-client/dist/socket.io.js");
 const YES = "có";
@@ -39,7 +40,7 @@ class App extends React.Component {
       updateMSSV:false,
       confirmUpdate: NO
      };
-     
+     //https://chatbot-dlu.herokuapp.com
     this.socket = io("https://chatbot-dlu.herokuapp.com", {
       transports: ["websocket", "polling", "flashsocket"],
       jsonp: false,
@@ -47,44 +48,49 @@ class App extends React.Component {
     
     this.socket.on("connect", () => {
       console.log("socket connected from server chatbot-dlu");
+     
     });
 
     this.socket.on("send-schedule", (data) => {
       if(Array.isArray(data)){
-        const messageBots= renderSchedule(data);
-        messageBots.forEach(e=>{
-          this.renderFromBot(e.text);
-        })
+      
+        setTimeout(() => {
+          const messageBots= renderSchedule(data);
+          messageBots.forEach(e=>{
+            this.renderFromBot(e.text);
+          })
+        }, 1000);
+      
       }else{
        this.renderFromBot(data);
       }
     });
  
      getDataStorage().then(stores =>{
-      stores.map( (result,i,store)=>{   
-      if (store[i][1] !== null){
-       let items = JSON.parse(store[i][1]);  
-       items.forEach(el =>{
-         this.state.arrMessage.push(el);
-        this.add_view();
-       })      
-      }
-   })
-     })
-  }
+        stores.map( (result,i,store)=>{   
+        if (store[i][1] !== null){
+        let items = JSON.parse(store[i][1]);  
+        items.forEach(el =>{
+          this.state.arrMessage.push(el);
+          this.add_view();
+        })      
+        }
+    })
+      })
+    }
    
- TryParseInt(str,defaultValue) {
-  var retValue = defaultValue;
-  if(str !== null) {
-      if(str.length > 0) {
-          if (!isNaN(str)) {
-              retValue = parseInt(str);
+    TryParseInt(str,defaultValue) {
+      var retValue = defaultValue;
+      if(str !== null) {
+          if(str.length > 0) {
+              if (!isNaN(str)) {
+                  retValue = parseInt(str);
+              }
           }
       }
-  }
-  return retValue;
-}   
-     addMessage = async (message) =>{
+      return retValue;
+    }   
+    addMessage = async (message) =>{
       this.state.arrMessage.push(message);
       await setDataStorage(this.state.arrMessage);
     }
@@ -93,13 +99,13 @@ class App extends React.Component {
       this.setState({ arrMessage: this.state.arrMessage });
     };
  
-   renderFromUser(isMine, text){
+    renderFromUser(isMine, text){
     const newMess = { mine: isMine, text: text };
     this.addMessage(newMess);
     this.add_view();
    }
 
-   renderFromBot(text){
+    renderFromBot(text){
     const newMess = { mine: false, text: text };
     this.addMessage(newMess);
     this.add_view();
@@ -134,7 +140,7 @@ class App extends React.Component {
     }
     updateMSSVBot(mssv){
       this.setState({ updateMSSV: false }); 
-      getMSSVDataStorage().then(kq =>{
+    getMSSVDataStorage().then(kq =>{
       
        const existMssv  = checkExistMssv(kq,true);//clear storage mssv ;return null;
        if(existMssv === null){
@@ -161,7 +167,39 @@ class App extends React.Component {
        this.setState({ updateMSSV: true });   
       }
 }
-
+    provideMssv(isMssv){
+      getMSSVDataStorage().then(kq =>{
+        let existMssv =null;
+          existMssv = checkExistMssv(kq,false);
+        
+        if(existMssv !== null){
+              this.setState({ updateMSSV: true }); 
+              this.renderFromBot("Bạn đã cung cấp mssv rồi!\nBạn có muốn cập nhật lại không?");
+              //prompt //cập nhật lại or không
+              
+        }else{
+              setMSSVDataStorage(isMssv);
+              this.renderFromBot("Xin chào\nBạn đã có thể xem được thời khóa biểu!");
+        }
+      });
+   
+   }
+    processText(inputText) {
+    const output =  inputText.replace(/\'/g, '').split(/(\d+)/).filter(Boolean); 
+    output.forEach(e =>{
+       const kq =  this.TryParseInt(e);
+       if(kq !== 0 && kq !== null &&  typeof(kq) != 'undefined'){
+              if(kq.toString().length === 7){
+                this.renderFromBot("Đang xử lý bạn đợi tí!");
+                this.socket.emit("scheduleWeek",  {mssv:kq , message:inputText});  
+            return;
+              }else{
+                this.renderFromBot("MSSV phải 7 chữ số!");
+            return;
+              }
+       }
+    })
+    }
 
   render() {
     const message = { mine: true, text: "" };
@@ -177,21 +215,23 @@ class App extends React.Component {
         if(mesageUser === ""){
           return { mine: state.mine, text: mesageUser };
         }
-        //DeleteMessageBot
+        //Delete MessageBot
         if(this.state.deleteMessage){
            if(mesageUser === YES)
            {this.confrimIsDeleteMessageBot(mesageUser);}
            else if(mesageUser === NO){ this.setState({ deleteMessage: false });}
            else{this.isDeleleMessageBot()}
+            //Update mssv MessageBot
         }else if(this.state.updateMSSV){ 
-          const isMssv =  this.TryParseInt(mesageUser,0);
 
+          const isMssv =  this.TryParseInt(mesageUser,0);
           if(isMssv !== 0 && isMssv !== null && this.state.confirmUpdate === YES){
               if(isMssv.toString().length === 7){
                 this.updateMSSVBot(isMssv);
               }
               else{
                 this.renderFromBot("MSSV phải 7 chữ số!");
+              
                }
           }else{
             if(mesageUser === YES){  
@@ -204,7 +244,6 @@ class App extends React.Component {
               this.isUpdateMessageBot()
             }
           }
-        
         }
         else{
             if(mesageUser.includes("xóa")){
@@ -213,61 +252,43 @@ class App extends React.Component {
              return { mine: state.mine, text: mesageUser };
           }
 
-          if(mesageUser.includes("cập nhật")){
+          if(mesageUser.includes("cập nhật")
+             && mesageUser.includes("mssv")){
               this.isUpdateMessageBot();
               this.confrimIsUpdateMessageBot(mesageUser);
-            return { mine: state.mine, text: mesageUser };
-          
+            return { mine: state.mine, text: mesageUser }; 
           }
-   
-
-   const isMssv =  this.TryParseInt(mesageUser,0);
-
-   if(isMssv !== 0 && isMssv !== null){
-      if(isMssv.toString().length === 7)
- {
-   getMSSVDataStorage().then(kq =>{
-     let existMssv =null;
-    const messageBot = this.state.arrMessage.filter(e =>{
-            return e.mine === false;
-     })
-
-     if(messageBot.length !==0 ){
-      
-       if (messageBot[messageBot.length -1].text.includes("cập nhật")){
-     
-     
-         return { mine: state.mine, text: state.text };
-     }
-     }
-       existMssv = checkExistMssv(kq,false);
-      
-     if(existMssv !== null){
-            this.renderFromBot("tôi không hiểu ý bạn!" );
-     }else{
-           setMSSVDataStorage(isMssv);
-            this.renderFromBot("Xin chào\nBạn đã có thể xem được thời khóa biểu!");
-     }
-   });
-  
- }else{
-     this.renderFromBot("MSSV phải 7 chữ số!");
-   }
-   return { mine: state.mine, text: state.text };
- }
-  // check input
-  getMSSVDataStorage().then(kq =>{
-   const existMssv = checkExistMssv(kq);
-   if(existMssv === null){
-     this.renderFromBot("Bạn phải cung cấp MSSV trước khi xem thời khóa biểu(vd:1812866)!");
-}else{ 
-    this.renderFromBot("Đang xử lý bạn đợi tí!");
-      this.socket.emit("scheduleWeek", {mssv:existMssv , message:state.text.trim()});  
-} 
- });
+      const isMssv = this.TryParseInt(mesageUser,0);
+            
+        //check Ismssv exist
+        if(isMssv !== 0 && isMssv !== null){
+          if(isMssv.toString().length === 7)
+          {
+            this.provideMssv(isMssv);
+          }else{
+          this.renderFromBot("MSSV phải 7 chữ số!");
         }
-        
-        return { mine: state.mine, text: state.text };
+        return { mine: state.mine, text: mesageUser };
+      }
+
+      // check is mssv contain in string
+      const matches = mesageUser.match(/\d+/g);  
+      if (matches != null) {
+        this.processText(mesageUser);
+      }else{
+        getMSSVDataStorage().then(kq =>{
+          const existMssv = checkExistMssv(kq);
+          if(existMssv === null){
+            this.renderFromBot("Bạn phải cung cấp MSSV trước khi xem thời khóa biểu(vd:1812866)!");
+        }else{ 
+            this.renderFromBot("Đang xử lý bạn đợi tí!");
+            this.socket.emit("scheduleWeek", {mssv:existMssv , message:mesageUser});  
+        } 
+  
+        });
+      }
+        }
+        return { mine: state.mine, text: mesageUser };
       }
       return { mine: state.mine, text: state.text };
     };

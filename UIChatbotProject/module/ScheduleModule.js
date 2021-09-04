@@ -139,7 +139,6 @@ export function renderSchedule(data) {
      function initSchedule(scheduleFilter) {
      
         const items = scheduleFilter.split(",");
-        console.log(scheduleFilter);
         // ScheduleComponent(mon,lop,tiet,phong,gv,dahoc,nhom = "");
         if (items.length >= 8) {
           
