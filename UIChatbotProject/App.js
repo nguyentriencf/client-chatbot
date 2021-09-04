@@ -1,5 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
+import HintMessage from "./components/HintMessage";
 
 import {
   StyleSheet,
@@ -8,6 +9,8 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  FlatList,
+  TouchableOpacity
 } from "react-native";
 import AsyncStorage from "@react-native-community/async-storage";
 
@@ -275,8 +278,11 @@ class App extends React.Component {
     this.addMessage(newMess);
     this.add_view();
    }
-
+  
+   
   render() {
+    
+
     const message = { mine: true, text: "" };
 
     const show = {
@@ -342,7 +348,6 @@ class App extends React.Component {
                  this.renderFromBot("Xin chào\nBạn đã có thể xem được thời khóa biểu!");
           }
         });
-       
       }else{
           this.renderFromBot("MSSV phải 7 chữ số!");
         }
@@ -413,6 +418,7 @@ class App extends React.Component {
               </View>
             </View>
             <View style={styles.body}>
+              <HintMessage/>
               <ScrollView
                 showsVerticalScrollIndicator={false}
                 style={styles.scrollView}
@@ -426,7 +432,6 @@ class App extends React.Component {
                 {renderMessage}
               </ScrollView>
             </View>
-
             <View style={styles.footer}>
               <Input />
               <Send />
@@ -450,7 +455,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   footer: {
-    flex: 0.8,
+    flex: 3,
     backgroundColor: "#1D1F2C",
   },
   header: {
@@ -480,4 +485,5 @@ const styles = StyleSheet.create({
     left: -10,
     position: "relative",
   },
+ 
 });

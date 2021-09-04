@@ -14,7 +14,6 @@ class Send extends React.Component {
   }
 
   render() {
-  
    const state = {
       animation: new Animated.Value(0)
     };

@@ -1,6 +1,5 @@
 // import React
 import React from "react";
-import { LinearGradient } from "expo-linear-gradient";
 
 //import react native Component
 import { StyleSheet, View, Text, Image ,Animated } from "react-native";
