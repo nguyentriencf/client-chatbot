@@ -53,7 +53,6 @@ class App extends React.Component {
 
     this.socket.on("send-schedule", (data) => {
       if(Array.isArray(data)){
-      
         setTimeout(() => {
           const messageBots= renderSchedule(data);
           messageBots.forEach(e=>{
@@ -184,22 +183,41 @@ class App extends React.Component {
       });
    
    }
+
+   SendScheduleBot(mesageUser) {
+    getMSSVDataStorage().then(kq =>{
+      const existMssv = checkExistMssv(kq);
+      if(existMssv === null){
+        this.renderFromBot("Bạn phải cung cấp MSSV trước khi xem thời khóa biểu(vd:1812866)!");
+    }else{ 
+        this.renderFromBot("Đang xử lý bạn đợi tí!");
+        this.socket.emit("scheduleWeek", {mssv:existMssv , message:mesageUser});  
+    }  
+  });
+   }
+
+
     processText(inputText) {
     const output =  inputText.replace(/\'/g, '').split(/(\d+)/).filter(Boolean); 
     output.forEach(e =>{
        const kq =  this.TryParseInt(e);
        if(kq !== 0 && kq !== null &&  typeof(kq) != 'undefined'){
-              if(kq.toString().length === 7){
+              if(kq.toString().length === 7 ){
                 this.renderFromBot("Đang xử lý bạn đợi tí!");
                 this.socket.emit("scheduleWeek",  {mssv:kq , message:inputText});  
-            return;
-              }else{
+               return;
+              }else if(kq.toString().length === 1){
+                this.SendScheduleBot(inputText);
+               return;
+              }
+              else{ 
                 this.renderFromBot("MSSV phải 7 chữ số!");
             return;
               }
        }
     })
     }
+
 
   render() {
     const message = { mine: true, text: "" };
@@ -225,7 +243,8 @@ class App extends React.Component {
         }else if(this.state.updateMSSV){ 
 
           const isMssv =  this.TryParseInt(mesageUser,0);
-          if(isMssv !== 0 && isMssv !== null && this.state.confirmUpdate === YES){
+          if(isMssv !== 0 && isMssv !== null
+             && this.state.confirmUpdate === YES ){
               if(isMssv.toString().length === 7){
                 this.updateMSSVBot(isMssv);
               }
@@ -276,16 +295,7 @@ class App extends React.Component {
       if (matches != null) {
         this.processText(mesageUser);
       }else{
-        getMSSVDataStorage().then(kq =>{
-          const existMssv = checkExistMssv(kq);
-          if(existMssv === null){
-            this.renderFromBot("Bạn phải cung cấp MSSV trước khi xem thời khóa biểu(vd:1812866)!");
-        }else{ 
-            this.renderFromBot("Đang xử lý bạn đợi tí!");
-            this.socket.emit("scheduleWeek", {mssv:existMssv , message:mesageUser});  
-        } 
-  
-        });
+          this.SendScheduleBot(mesageUser);
       }
         }
         return { mine: state.mine, text: mesageUser };
