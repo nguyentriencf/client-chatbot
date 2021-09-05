@@ -291,21 +291,22 @@ class App extends React.Component {
   { id:3,mine:true, text: "TKB tuần sau" },
   { id:4,mine:true, text: "TKB Tuần sau nữa" }]
 
-    const getListHintMessage = ()=>{
-      console.log(this.myHintMessage);
-      return this.myHintMessage;
-    }
+   
     const hintMessageReducer = (state=dataHintMessage, action) =>{
-      if(action.type==="HINT_SENT_MESSAGE"){
+      if(action.type ==="HINT_SENT_MESSAGE"){
         return state.map((e)=>{
           if(e.id ===action.id){
             return this.renderFromUser(e.mine,e.text)
-          }
-         
-        }) 
+          }      
+        })}
+      else{
+        return state;
       }
-       return state;
     }
+     const getListHintMessage = () => {
+       const hintMessage = store.getState().hintMessageReducer;
+       return hintMessage;
+     };
     const sendMessageReducer =  (state = message, action) => {
       if (action.type === "SEND_MESSAGE") {
         this.renderFromUser(state.mine,state.text);
@@ -399,7 +400,7 @@ class App extends React.Component {
     const reducer = combineReducers({
       displaysReducer,
       sendMessageReducer,
-      hintMessageReducer
+      hintMessageReducer,
     });
 
     const store = createStore(reducer);
@@ -450,12 +451,14 @@ class App extends React.Component {
               >
                 {renderMessage}
               </ScrollView>
-              
             </View>
             <View style={styles.footer}>
               <FlatList
+
+              horizontal={true}
               data={getListHintMessage()}
-              renderItem={({item}) =><HintMessage text={item}/>}/>
+              renderItem={({item}) =><HintMessage text={item}/>}
+              keyExtractor={(item)=> item.id.toString()}/>
               <Input />
               <Send />
             </View>
@@ -511,7 +514,7 @@ const styles = StyleSheet.create({
   hintText: {
     color: "#777980",
     fontSize: 14,
-    left: -10,
+  
     position: "relative",
     justifyContent:'center'
   },

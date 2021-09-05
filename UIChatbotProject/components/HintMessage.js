@@ -11,15 +11,15 @@ import {
 } from "react-native";
 
       
-const HintMessage = (props) =>{   
-   const { id, text } = this.props.dataHintMessage;
+const HintMessage = (props) =>{    
+   const { id, text ,mine} = props.text;
+   const key = id.toString();
    
+  //  console.log(typeof key);
     return (
       <View>
-        <TouchableOpacity>
-          <Text>
-            {text}
-          </Text>
+        <TouchableOpacity >
+          <Text style={styles.textItem}>{text}</Text>
         </TouchableOpacity>
       </View>
     );
