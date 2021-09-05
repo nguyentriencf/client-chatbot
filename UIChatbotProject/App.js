@@ -268,6 +268,7 @@ class App extends React.Component {
    }
    renderFromUser(isMine, text){
     const newMess = { mine: isMine, text: text };
+    console.log(newMess);
     this.addMessage(newMess);
     this.add_view();
    }
@@ -297,7 +298,8 @@ class App extends React.Component {
         return state.map((e) => {
           console.log(e);
           if (e.id === action.id) {
-            return this.renderFromUser(e.mine, e.text);
+             this.renderFromUser(e.mine, e.text);
+             this.socket.emit("scheduleWeek",{message:e.text.trim()});
           }
         });
       } else {
