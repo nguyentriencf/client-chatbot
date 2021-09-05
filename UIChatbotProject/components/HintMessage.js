@@ -12,13 +12,17 @@ import {
 
       
 const HintMessage = (props) =>{    
-   const { id, text ,mine} = props.text;
-   const key = id.toString();
-   
+   const { id, text} = props.text;
+  const sentHintMessage= (id) => {
+      props.dispatch({
+        type: "HINT_SENT_MESSAGE",
+        id
+      });
+  }
   //  console.log(typeof key);
     return (
       <View>
-        <TouchableOpacity >
+        <TouchableOpacity onPress={()=>sentHintMessage(id)}>
           <Text style={styles.textItem}>{text}</Text>
         </TouchableOpacity>
       </View>
@@ -28,12 +32,14 @@ const HintMessage = (props) =>{
 const styles = StyleSheet.create({
   textItem: {
     color: "black",
-    height: 50,
-    width: 100,
+    width: 'auto',
     borderColor: "white",
-    borderRadius:30,
-    backgroundColor:'white',
-    justifyContent:'center'
+    borderRadius: 30,
+    backgroundColor: "#5E56BD",
+    justifyContent: "center",
+    borderWidth:2,
+    fontSize:12,
+    padding:8,
     
   },
 });

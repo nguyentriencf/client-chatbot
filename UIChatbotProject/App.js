@@ -293,13 +293,14 @@ class App extends React.Component {
 
    
     const hintMessageReducer = (state=dataHintMessage, action) =>{
-      if(action.type ==="HINT_SENT_MESSAGE"){
-        return state.map((e)=>{
-          if(e.id ===action.id){
-            return this.renderFromUser(e.mine,e.text)
-          }      
-        })}
-      else{
+      if (action.type === "HINT_SENT_MESSAGE") {
+        return state.map((e) => {
+          console.log(e);
+          if (e.id === action.id) {
+            return this.renderFromUser(e.mine, e.text);
+          }
+        });
+      } else {
         return state;
       }
     }
