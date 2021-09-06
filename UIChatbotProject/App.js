@@ -320,7 +320,8 @@ class App extends React.Component {
                 this.setMSSVDataStorage(isMssv);
                  this.renderFromBot("Xin chào\nBạn đã có thể xem được thời khóa biểu!");
           }
-        });
+        
+      
       }else{
           this.renderFromBot("MSSV phải 7 chữ số!");
         }
@@ -337,8 +338,8 @@ class App extends React.Component {
         }
         return { mine: state.mine, text: mesageUser };
       }
-      return { mine: state.mine, text: state.text };
-    };
+      return { mine: state.mine, text: state.text }};
+    
 
     const displaysReducer = (state = show, action) => {
       if (action.type === "SHOW") {
@@ -420,6 +421,7 @@ class App extends React.Component {
     );
   }
 }
+
 
 
 export default App
