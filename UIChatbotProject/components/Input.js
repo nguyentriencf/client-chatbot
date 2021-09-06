@@ -1,5 +1,5 @@
-import React from "react";
-import { View, StyleSheet, TextInput } from "react-native";
+import React,{useState} from "react";
+import { View, StyleSheet, TextInput, ScrollView, FlatList, TouchableOpacity,  } from "react-native";
 import { IconButton, Colors } from "react-native-paper";
 import { connect } from "react-redux";
 
@@ -17,9 +17,12 @@ class Input extends React.Component {
       this.props.myMessage.text = TextInputValue;
       this.props.dispatch({ type: "NONE" });      
     }
+
   };
 
+  
   render() {
+   
     return (
       <View style={styles.container}>
         <TextInput
@@ -27,10 +30,10 @@ class Input extends React.Component {
           style={styles.input}
           onChangeText={(TextInputValue) => {
             this.OnInputText(TextInputValue);
-           
           }}
           value={this.props.myMessage.text}
-        ></TextInput>
+        
+        />
 
         <IconButton
           style={styles.micro}
@@ -79,6 +82,9 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     backgroundColor: "#434959",
   },
+  hintMess:{
+    color:"white"
+  }
 });
 
 

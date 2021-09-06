@@ -1,5 +1,9 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
+
+import HintMessage from "./components/HintMessage";
+import {connect} from 'react-redux'
+
 import {
   StyleSheet,
   Text,
@@ -7,6 +11,8 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  FlatList,
+  TouchableOpacity
 } from "react-native";
 
 import MessageBubble from "./components/MessageBubble";
@@ -61,7 +67,7 @@ class App extends React.Component {
         }, 1000);
       
       }else{
-       this.renderFromBot(data);
+       this.renderFromBot(data)
       }
     });
  
@@ -100,6 +106,7 @@ class App extends React.Component {
  
     renderFromUser(isMine, text){
     const newMess = { mine: isMine, text: text };
+    console.log(newMess);
     this.addMessage(newMess);
     this.add_view();
    }
@@ -109,6 +116,7 @@ class App extends React.Component {
     this.addMessage(newMess);
     this.add_view();
    }
+
 
     isDeleleMessageBot(){  
       this.setState({ deleteMessage: true });    
@@ -218,13 +226,36 @@ class App extends React.Component {
     })
     }
 
-
   render() {
     const message = { mine: true, text: "" };
 
     const show = {
       display: "none",
     };
+    const dataHintMessage = [
+  { id:1,mine:true, text: "TKB hôm nay" },
+  { id:2,mine:true, text: "TKB ngày mai" },
+  { id:3,mine:true, text: "TKB tuần sau" },
+  { id:4,mine:true, text: "TKB Tuần sau nữa" }]
+
+   
+    const hintMessageReducer = (state=dataHintMessage, action) =>{
+      if (action.type === "HINT_SENT_MESSAGE") {
+        return state.map((e) => {
+          console.log(e);
+          if (e.id === action.id) {
+             this.renderFromUser(e.mine, e.text);
+             this.socket.emit("scheduleWeek",{message:e.text.trim()});
+          }
+        });
+      } else {
+        return state;
+      }
+    }
+     const getListHintMessage = () => {
+       const hintMessage = store.getState().hintMessageReducer;
+       return hintMessage;
+     };
     const sendMessageReducer =  (state = message, action) => {
       if (action.type === "SEND_MESSAGE") {
         const mesageUser =state.text.trim();
@@ -285,6 +316,12 @@ class App extends React.Component {
           {
             this.provideMssv(isMssv);
           }else{
+
+                this.setMSSVDataStorage(isMssv);
+                 this.renderFromBot("Xin chào\nBạn đã có thể xem được thời khóa biểu!");
+          }
+        });
+      }else{
           this.renderFromBot("MSSV phải 7 chữ số!");
         }
         return { mine: state.mine, text: mesageUser };
@@ -315,6 +352,7 @@ class App extends React.Component {
     const reducer = combineReducers({
       displaysReducer,
       sendMessageReducer,
+      hintMessageReducer,
     });
 
     const store = createStore(reducer);
@@ -352,6 +390,7 @@ class App extends React.Component {
               </View>
             </View>
             <View style={styles.body}>
+              {/* <HintMessage/> */}
               <ScrollView
                 showsVerticalScrollIndicator={false}
                 style={styles.scrollView}
@@ -365,8 +404,13 @@ class App extends React.Component {
                 {renderMessage}
               </ScrollView>
             </View>
-
             <View style={styles.footer}>
+              <FlatList
+
+              horizontal={true}
+              data={getListHintMessage()}
+              renderItem={({item}) =><HintMessage text={item}/>}
+              keyExtractor={(item)=> item.id.toString()}/>
               <Input />
               <Send />
             </View>
@@ -378,7 +422,7 @@ class App extends React.Component {
 }
 
 
-export default App;
+export default App
 const styles = StyleSheet.create({
   voidingView: {
     flex: 1,
@@ -389,7 +433,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   footer: {
-    flex: 0.8,
+    flex: 3,
     backgroundColor: "#1D1F2C",
   },
   header: {
@@ -418,5 +462,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     left: -10,
     position: "relative",
+  },
+  hintText: {
+    color: "#777980",
+    fontSize: 14,
+  
+    position: "relative",
+    justifyContent:'center'
   },
 });
