@@ -190,7 +190,7 @@ class App extends React.Component {
       if(existMssv === null){
         this.renderFromBot("Bạn phải cung cấp MSSV trước khi xem thời khóa biểu(vd:1812866)!");
     }else{ 
-        this.renderFromBot("Đang xử lý bạn đợi tí!");
+        this.renderFromBot("Bạn đợi tí!");
         this.socket.emit("scheduleWeek", {mssv:existMssv , message:mesageUser});  
     }  
   });
