@@ -1,7 +1,9 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
+
 import HintMessage from "./components/HintMessage";
 import {connect} from 'react-redux'
+
 import {
   StyleSheet,
   Text,
@@ -12,7 +14,6 @@ import {
   FlatList,
   TouchableOpacity
 } from "react-native";
-import AsyncStorage from "@react-native-community/async-storage";
 
 import MessageBubble from "./components/MessageBubble";
 import { BlurView } from "expo-blur";
@@ -23,263 +24,208 @@ import { createStore } from "redux";
 import { Provider } from "react-redux";
 import { LinearGradient } from "expo-linear-gradient";
 import { combineReducers } from "redux";
-import { Schedule } from "./entity/Schedule";
-import { ScheduleComponent } from "./entity/ScheduleComponent";
-
+import {renderSchedule} from "./module/ScheduleModule";
+import {getDataStorage,setDataStorage,removeDataStorage,
+        getMSSVDataStorage,setMSSVDataStorage,removeMSSVStorage,
+        checkExistMssv} from "./Storage/dataStorage";
 // socket-client
 const io = require("socket.io-client/dist/socket.io.js");
-
+const YES = "có";
+const NO ="không";
+const CANCEL ="hủy";
 class App extends React.Component {
+
   constructor(props) {
     super(props);
-    this.state = { 
+    this.state =
+     { 
       arrMessage: [], 
-      data:[]
-       };
-  this.getDataStorage();
-
+      data:[],
+      deleteMessage:false,
+      scheduleMessage:false,
+      updateMSSV:false,
+      confirmUpdate: NO
+     };
+     //https://chatbot-dlu.herokuapp.com
     this.socket = io("https://chatbot-dlu.herokuapp.com", {
       transports: ["websocket", "polling", "flashsocket"],
       jsonp: false,
     });
+    
     this.socket.on("connect", () => {
       console.log("socket connected from server chatbot-dlu");
+     
     });
 
     this.socket.on("send-schedule", (data) => {
       if(Array.isArray(data)){
-        const messageBots= this.renderSchedule(data);
-        
-        messageBots.forEach(e=>{
-          this.renderFromBot(e.text);
-        })
-      }else{
-       this.renderFromBot(data);
-      }   
-    });
-  }
-    removeDataStorage = () =>{
-      AsyncStorage.removeItem('data');
-  
-    }
-    getDataStorage = ()=>{
-      AsyncStorage.multiGet(['data'],(err, stores)=>{ 
-          if(stores !== null){  
-             
-           stores.map((result,i,store)=>{   
-              if (store[i][1] !== null){
-               let items = JSON.parse(store[i][1]);  
-               items.forEach(el =>{
-                 this.state.arrMessage.push(el);
-                 this.setState({ arrMessage :this.state.arrMessage});
-               })      
-              }
-           })
-          }else{
-           console.log("empty");
-          }  
-          if(err){
-            console.log(err.message);
-          } 
-       }
-       );
-   }
-   setDataStorage = async (arrMessage)=>{
-      let item = ['data',JSON.stringify(arrMessage)];
-             await AsyncStorage.multiSet([item]);
-   }
-   setMSSVDataStorage = async (mssv)=>{
-    let value = ['mssv',JSON.stringify(mssv)];
-           await AsyncStorage.multiSet([value]);
- }
- getMSSVDataStorage = ()=>{
-   const mssv = AsyncStorage.multiGet(['mssv']);
-    return mssv;
-}
- TryParseInt(str,defaultValue) {
-  var retValue = defaultValue;
-  if(str !== null) {
-      if(str.length > 0) {
-          if (!isNaN(str)) {
-              retValue = parseInt(str);
-          }
-      }
-  }
-  return retValue;
-}
-     renderSchedule(data) {
-      const [, ...filterData] = [...data];
-      const arrMessage = [];
-      for (const [key, value] of Object.entries(filterData)) {
-        const { 0: thu, ...rest } = value;
-
-        const schedule = new Schedule();
-        for (const [key, value] of Object.entries(rest)) {
-          const noon = key.toLocaleLowerCase();
-          const scheduleComponent = this.initSche(key, value);
-          if (typeof scheduleComponent !== String) {
-            this.checkNoon(schedule, 0, thu, scheduleComponent, noon);
-          } else {
-            this.checkNoon(schedule, 1, thu, scheduleComponent, noon);
-          }
-        }
+        setTimeout(() => {
+          const messageBots= renderSchedule(data);
+          messageBots.forEach(e=>{
+            this.renderFromBot(e.text);
+          })
+        }, 1000);
       
-      const messageBot =""; 
-      const messageMonning = schedule.thu +":\n"+
-                                       "Sáng:";
-      const scheduleDetailMorning = schedule.morning !== "không có tiết" ? 
-                                     "\n-Môn: " + schedule.morning.mon+"\n"+
-                                     "-Nhóm: "+ schedule.morning.nhom+"\n"+
-                                     "-Tiết: "+ schedule.morning.tiet+"\n"+
-                                     "-Phòng: "+ schedule.morning.phong+"\n"+
-                                     "-GV: "+ schedule.morning.gv+"\n"+
-                                     "-Đã học: "+ schedule.morning.dahoc+"\n"
-                                                        : " không có tiết\n";
-          messageMonning += scheduleDetailMorning;
-     const messageBotAfternoon = "Chiều:";
-     const scheduleDetailAfterNoon = schedule.afternoon !== "không có tiết" ? 
-                                "\n-Môn: " + schedule.afternoon.mon+"\n"+
-                                "-Nhóm: "+ schedule.afternoon.nhom+"\n"+
-                                "-Tiết: "+ schedule.afternoon.tiet+"\n"+
-                                "-Phòng: "+ schedule.afternoon.phong+"\n"+
-                                "-GV: "+ schedule.afternoon.gv+"\n"+
-                                "-Đã học: "+ schedule.afternoon.dahoc+"\n"
-                             : " không có tiết\n";  
-          messageBotAfternoon += scheduleDetailAfterNoon;
-    const messageBotEvening = "Tối:";
-    const scheduleDetailEvening = schedule.evening !== "không có tiết" ? 
-                             "\n-Môn: " + schedule.evening.mon+"\n"+
-                             "-Nhóm: "+ schedule.evening.nhom+"\n"+
-                             "-Tiết: "+ schedule.evening.tiet+"\n"+
-                             "-Phòng: "+ schedule.evening.phong+"\n"+
-                             "-GV: "+ schedule.evening.gv+"\n"+
-                             "-Đã học: "+ schedule.evening.dahoc+"\n"
-                              : " không có tiết\n";  
-          messageBotEvening += scheduleDetailEvening;
-
-          messageBot = messageMonning + messageBotAfternoon + messageBotEvening;
-  
-      const newMess = { mine: false, text: messageBot };  
-      arrMessage.push(newMess);
+      }else{
+       this.renderFromBot(data)
       }
-      return arrMessage;
-    }
-
-     checkNoon(schedule, flag, thu, scheduleComponent, noon) {
-      switch (flag) {
-        case 0: {
-          schedule.setThu(thu);
-          if (noon === "sáng") {
-            schedule.setMorning(scheduleComponent);
-          } else if (noon === "chiều") {
-            schedule.setAfternoon(scheduleComponent);
-          } else {
-            schedule.setEvening(scheduleComponent);
-          }
-          break;
+    });
+ 
+     getDataStorage().then(stores =>{
+        stores.map( (result,i,store)=>{   
+        if (store[i][1] !== null){
+        let items = JSON.parse(store[i][1]);  
+        items.forEach(el =>{
+          this.state.arrMessage.push(el);
+          this.add_view();
+        })      
         }
-        case 1: {
-          schedule.setThu(thu);
-          if (noon === "sáng") {
-            schedule.displayMorningNoon(scheduleComponent);
-          } else if (noon === "chiều") {
-            schedule.displayAfternoonNoon(scheduleComponent);
-          } else {
-            schedule.displayEveningNoon(scheduleComponent);
-          }
-          break;
-        }
-      }
+    })
+      })
     }
    
-     initSche(key, value) {
-      const filter = /-Môn: |-Nhóm: |-Lớp: |-Tiết: |-Phòng: |-GV: |-Đã học: /gi;
-
-      if (value !== "") {
-        if (value.includes("-Nhóm: ")) {
-          const strFilter = value.replace(filter, function (x) {
-            return (x = ",");
-          });
-          const scheduleComponent = this.initClass(strFilter);
-          return scheduleComponent;
-        } else {
-          const strFilter = value.replace(filter, function (x) {
-            return (x = ",");
-          });
-          const scheduleComponent = this.initClass(strFilter);
-          return scheduleComponent;
-        }
-      } else return "không có tiết";
-    }
-
-     initClass(strFilter) {
-      const arrScheComp = strFilter.split(",");
-      if (arrScheComp.length >= 8) {
-        const scheduleComponent = new ScheduleComponent(
-          arrScheComp[1],
-          arrScheComp[3],
-          arrScheComp[4],
-          arrScheComp[5],
-          arrScheComp[6],
-          arrScheComp[7],
-          arrScheComp[2]
-        );
-        return scheduleComponent;
-      } else {
-        const scheduleComponent = new ScheduleComponent(
-          arrScheComp[1],
-          arrScheComp[2],
-          arrScheComp[3],
-          arrScheComp[4],
-          arrScheComp[5],
-          arrScheComp[6]
-        );
-        return scheduleComponent;
+    TryParseInt(str,defaultValue) {
+      var retValue = defaultValue;
+      if(str !== null) {
+          if(str.length > 0) {
+              if (!isNaN(str)) {
+                  retValue = parseInt(str);
+              }
+          }
       }
-    }
-    
-     addMessage = async (message) =>{
+      return retValue;
+    }   
+    addMessage = async (message) =>{
       this.state.arrMessage.push(message);
-      await this.setDataStorage(this.state.arrMessage);
+      await setDataStorage(this.state.arrMessage);
     }
 
     add_view() {
       this.setState({ arrMessage: this.state.arrMessage });
     };
-    
-   checkExistMssv(mssv,isUpdate){
-     console.log(isUpdate);
-    if(mssv !== null){
-       console.log(mssv);
-       let value =null;
-      mssv.map((result,i,store)=>{   
-         if (store[i][1] !== null && isUpdate == true){
-        console.log(store[i][1]); 
-          
-         AsyncStorage.removeItem('mssv');
-         }else{
-          value =store[i][1]; 
-         }
-      })
-      return value;
-     }
-      return null;       
-     
-   }
-   renderFromUser(isMine, text){
+ 
+    renderFromUser(isMine, text){
     const newMess = { mine: isMine, text: text };
     console.log(newMess);
     this.addMessage(newMess);
     this.add_view();
    }
 
-   renderFromBot(text){
+    renderFromBot(text){
     const newMess = { mine: false, text: text };
     this.addMessage(newMess);
     this.add_view();
    }
-  
+
+
+    isDeleleMessageBot(){  
+      this.setState({ deleteMessage: true });    
+      this.renderFromBot("Bạn có chắc xóa tin nhắn không?(có/không)");
+
+    }
+    confrimIsDeleteMessageBot(confirm){
+             if(confirm === YES){
+              this.setState({ deleteMessage: false });   
+              this.renderFromBot("Đang xử lý...!");
+              setTimeout(() => {
+                removeDataStorage();
+                this.state.arrMessage =[];
+                this.add_view();   
+              }, 2000);
+             }else{
+              this.setState({ deleteMessage: true });   
+             }
+    }
+
+    isUpdateMessageBot(){
+     
+      this.renderFromBot("Bạn có chắc cập nhật lại mssv không?(có/không)");
+    }
+
+    isMssvUpdateBot(){
+      this.renderFromBot("Mã số bạn muốn cập nhật là gì?");
+    }
+    updateMSSVBot(mssv){
+      this.setState({ updateMSSV: false }); 
+    getMSSVDataStorage().then(kq =>{
+      
+       const existMssv  = checkExistMssv(kq,true);//clear storage mssv ;return null;
+       if(existMssv === null){
+        this.renderFromBot("Đang xử lý...!");      
+        setTimeout(() => {
+          setMSSVDataStorage(mssv);
+          }, 1000);   
+        setTimeout(() => {
+        this.renderFromBot("Cập nhật thành công!");
+        this.renderFromBot("Bạn đã có thể xem lại thời khóa biểu mới cập nhật!");
+        this.state.confirmUpdate = NO;
+        }, 2000);
+       }
+       
+      })  
+            
+    }
+    confrimIsUpdateMessageBot(confirm){
+      if(confirm === YES){
+        this.state.confirmUpdate = YES
+        this.isMssvUpdateBot();
+      }
+      else{
+       this.setState({ updateMSSV: true });   
+      }
+}
+    provideMssv(isMssv){
+      getMSSVDataStorage().then(kq =>{
+        let existMssv =null;
+          existMssv = checkExistMssv(kq,false);
+        
+        if(existMssv !== null){
+              this.setState({ updateMSSV: true }); 
+              this.renderFromBot("Bạn đã cung cấp mssv rồi!\nBạn có muốn cập nhật lại không?");
+              //prompt //cập nhật lại or không
+              
+        }else{
+              setMSSVDataStorage(isMssv);
+              this.renderFromBot("Xin chào\nBạn đã có thể xem được thời khóa biểu!");
+        }
+      });
    
+   }
+
+   SendScheduleBot(mesageUser) {
+    getMSSVDataStorage().then(kq =>{
+      const existMssv = checkExistMssv(kq);
+      if(existMssv === null){
+        this.renderFromBot("Bạn phải cung cấp MSSV trước khi xem thời khóa biểu(vd:1812866)!");
+    }else{ 
+        this.renderFromBot("Bạn đợi tí!");
+        this.socket.emit("scheduleWeek", {mssv:existMssv , message:mesageUser});  
+    }  
+  });
+   }
+
+
+    processText(inputText) {
+    const output =  inputText.replace(/\'/g, '').split(/(\d+)/).filter(Boolean); 
+    output.forEach(e =>{
+       const kq =  this.TryParseInt(e);
+       if(kq !== 0 && kq !== null &&  typeof(kq) != 'undefined'){
+              if(kq.toString().length === 7 ){
+                this.renderFromBot("Đang xử lý bạn đợi tí!");
+                this.socket.emit("scheduleWeek",  {mssv:kq , message:inputText});  
+               return;
+              }else if(kq.toString().length === 1){
+                this.SendScheduleBot(inputText);
+               return;
+              }
+              else{ 
+                this.renderFromBot("MSSV phải 7 chữ số!");
+            return;
+              }
+       }
+    })
+    }
+
   render() {
     const message = { mine: true, text: "" };
 
@@ -312,60 +258,65 @@ class App extends React.Component {
      };
     const sendMessageReducer =  (state = message, action) => {
       if (action.type === "SEND_MESSAGE") {
-        this.renderFromUser(state.mine,state.text);
+        const mesageUser =state.text.trim();
+        this.renderFromUser(mesageUser,state.text);
 
-        if(state.text.trim() === ""){
-          return { mine: state.mine, text: state.text };
+        if(mesageUser === ""){
+          return { mine: state.mine, text: mesageUser };
         }
-        if(state.text.trim().includes("xóa")){
-          this.renderFromBot("Đang xử lý...!");
-          setTimeout(() => {
-            this.removeDataStorage();
-            this.state.arrMessage =[];
-            this.add_view();
-        
-          }, 2000);
-          return { mine: state.mine, text: state.text };
-        }
+        //Delete MessageBot
+        if(this.state.deleteMessage){
+           if(mesageUser === YES)
+           {this.confrimIsDeleteMessageBot(mesageUser);}
+           else if(mesageUser === NO){ this.setState({ deleteMessage: false });}
+           else{this.isDeleleMessageBot()}
+            //Update mssv MessageBot
+        }else if(this.state.updateMSSV){ 
 
-        if(state.text.trim().includes("cập nhật")){
-          this.renderFromBot("Mã số bạn muốn cập nhật là gì?");
-          return { mine: state.mine, text: state.text };
-        
-        }
-        
-        const isMssv =  this.TryParseInt(state.text.trim(),0);
-
-        if(isMssv !== 0 && isMssv !== null){
-           if(isMssv.toString().length === 7)
-      {
-        this.getMSSVDataStorage().then(kq =>{
-          let existMssv =null;
-         const messageBot = this.state.arrMessage.filter(e =>{
-                 return e.mine === false;
-          })
-          console.log(messageBot);
-          if(messageBot.length !==0 ){
-           
-            if (messageBot[messageBot.length -1].text.includes("cập nhật")){
-          
-              existMssv  = this.checkExistMssv(kq,true);//clear storage mssv ;return null;
-              this.renderFromBot("Đang xử lý...!");      
-              setTimeout(() => {
-                this.setMSSVDataStorage(isMssv);
-                }, 1000);   
-              setTimeout(() => {
-              this.renderFromBot("Cập nhật thành công!");
-              this.renderFromBot("Xin chào\nBạn đã có thể xem được thời khóa biểu!");
-              }, 2000);
-              return { mine: state.mine, text: state.text };
-          }
-          }
-            existMssv = this.checkExistMssv(kq,false);
-           
-          if(existMssv !== null){
-                 this.renderFromBot("tôi không hiểu ý bạn!" );
+          const isMssv =  this.TryParseInt(mesageUser,0);
+          if(isMssv !== 0 && isMssv !== null
+             && this.state.confirmUpdate === YES ){
+              if(isMssv.toString().length === 7){
+                this.updateMSSVBot(isMssv);
+              }
+              else{
+                this.renderFromBot("MSSV phải 7 chữ số!");
+              
+               }
           }else{
+            if(mesageUser === YES){  
+              this.confrimIsUpdateMessageBot(mesageUser);
+            }
+            else if(mesageUser === NO){
+               this.setState({ updateMSSV: false });
+              }
+            else{
+              this.isUpdateMessageBot()
+            }
+          }
+        }
+        else{
+            if(mesageUser.includes("xóa")){
+              this.isDeleleMessageBot();
+              this.confrimIsDeleteMessageBot(mesageUser);
+             return { mine: state.mine, text: mesageUser };
+          }
+
+          if(mesageUser.includes("cập nhật")
+             && mesageUser.includes("mssv")){
+              this.isUpdateMessageBot();
+              this.confrimIsUpdateMessageBot(mesageUser);
+            return { mine: state.mine, text: mesageUser }; 
+          }
+      const isMssv = this.TryParseInt(mesageUser,0);
+            
+        //check Ismssv exist
+        if(isMssv !== 0 && isMssv !== null){
+          if(isMssv.toString().length === 7)
+          {
+            this.provideMssv(isMssv);
+          }else{
+
                 this.setMSSVDataStorage(isMssv);
                  this.renderFromBot("Xin chào\nBạn đã có thể xem được thời khóa biểu!");
           }
@@ -373,20 +324,18 @@ class App extends React.Component {
       }else{
           this.renderFromBot("MSSV phải 7 chữ số!");
         }
-        return { mine: state.mine, text: state.text };
+        return { mine: state.mine, text: mesageUser };
       }
-       // check input
-       this.getMSSVDataStorage().then(kq =>{
-        const existMssv = this.checkExistMssv(kq);
-        if(existMssv === null){
-          this.renderFromBot("Bạn phải cung cấp MSSV trước khi xem thời khóa biểu(vd:1812866)!");
-   }else{ 
-         this.renderFromBot("Đang xử lý bạn đợi tí!");
-           this.socket.emit("scheduleWeek", {mssv:existMssv , message:state.text.trim()});  
-   } 
-      });
 
-        return { mine: state.mine, text: state.text };
+      // check is mssv contain in string
+      const matches = mesageUser.match(/\d+/g);  
+      if (matches != null) {
+        this.processText(mesageUser);
+      }else{
+          this.SendScheduleBot(mesageUser);
+      }
+        }
+        return { mine: state.mine, text: mesageUser };
       }
       return { mine: state.mine, text: state.text };
     };
