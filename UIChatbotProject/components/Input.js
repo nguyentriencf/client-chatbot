@@ -1,57 +1,72 @@
 import React,{useState} from "react";
-import { View, StyleSheet, TextInput, ScrollView, FlatList, TouchableOpacity,  } from "react-native";
-import { IconButton, Colors } from "react-native-paper";
+import { View, StyleSheet, TextInput} from "react-native";
+import { MaterialCommunityIcons,MaterialIcons  } from "@expo/vector-icons";
 import { connect } from "react-redux";
-
 class Input extends React.Component {
   constructor(props) {
     super(props);
+    this.state={ countShow :0}
   }
+  pressIn = ()=>{
+    this.props.dispatch({ type: "PRESS_IN" });
+  }
+  pressOut=()=>{
+    this.props.dispatch({ type: "PRESS_OUT" });
+  }
+
   OnInputText = (TextInputValue) => {
-    if (TextInputValue.trim() != 0) {
+    
+    if(this.props.myMessage.text ===''){
+         this.state.countShow =0;  
+       }
+      this.state.countShow +=1;
+    if (TextInputValue.trim() != '') {
       this.props.myMessage.text = TextInputValue;
       this.props.myMessage.mine =true;
-      this.props.dispatch({ type: "SHOW" }); 
-     
-    } else {
+      if( this.state.countShow === 1  ){
+      this.props.dispatch({ type: "SHOW" });
+      }
+      this.props.dispatch({ type: "NOT" });
+    }else {
+      this.state.countShow =0;
       this.props.myMessage.text = TextInputValue;
       this.props.dispatch({ type: "NONE" });      
     }
 
   };
-
-  
   render() {
    
     return (
       <View style={styles.container}>
+         <MaterialIcons style={{display:this.props.init.display}} onPress={()=>this.pressOut()} name="cancel" size={24} color="white" />
         <TextInput
           placeholder="Type..."
           style={styles.input}
           onChangeText={(TextInputValue) => {
             this.OnInputText(TextInputValue);
           }}
-          value={this.props.myMessage.text}
-        
+         value={this.props.myMessage.text}
+         keyboardAppearance="dark"
+         onFocus={() => this.pressIn()}
         />
 
-        <IconButton
+        <MaterialCommunityIcons
           style={styles.micro}
-          icon="microphone-outline"
-          color={Colors.white}
-          size={23}
-          onPress={() => alert("Pressed")}
+          name="microphone-outline"
+          color="white"
+          size={30}
         />
       </View>
     );
   }
 }
 
-function mapStateToProps(state) {
-  return {
-    myMessage: state.sendMessageReducer
-  };
-}
+  function mapStateToProps(state) {
+    return {
+      myMessage: state.sendMessageReducer,
+      init: state.initHintMessageReducer,
+    };
+  }
 export default connect(mapStateToProps)(Input);
 const styles = StyleSheet.create({
   container: {
@@ -78,7 +93,7 @@ const styles = StyleSheet.create({
   micro: {
     flexDirection: "row",
     position: "absolute",
-    right: -3,
+    right: 3,
     borderRadius: 60,
     backgroundColor: "#434959",
   },

@@ -10,15 +10,17 @@
   },
   "dependencies": {
     "@expo/metro-config": "^0.1.84",
-    "@react-native-community/async-storage": "^1.12.1",
-    "babel-preset-react-native-stage-0": "^1.0.1",
-
     "@react-native-async-storage/async-storage": "^1.15.7",
-
+    "@react-native-voice/voice": "^3.2.1",
+    "babel-preset-react-native-stage-0": "^1.0.1",
     "expo": "^42.0.3",
+    "expo-av": "^9.2.3",
     "expo-blur": "~9.0.3",
     "expo-linear-gradient": "^9.2.0",
+    "expo-permissions": "^12.1.1",
     "expo-status-bar": "~1.0.4",
+    "file-uri-to-path": "^2.0.0",
+    "nan": "^2.15.0",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-42.0.0.tar.gz",

@@ -2,7 +2,7 @@ import React from "react";
 import { render } from "react-dom";
 import { connect } from "react-redux";
 import {
-    View,
+ View,
  Text,
  TouchableOpacity,
  StyleSheet,
@@ -19,28 +19,33 @@ const HintMessage = (props) =>{
         id
       });
   }
-  //  console.log(typeof key);
     return (
-      <View>
-        <TouchableOpacity onPress={()=>sentHintMessage(id)}>
-          <Text style={styles.textItem}>{text}</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity
+        style={styles.buttonHintMess}
+        onPress={() => sentHintMessage(id)}
+      >
+        <Text style={styles.textSendHintMessage}>{text}</Text>
+      </TouchableOpacity>
     );
 }
 
 const styles = StyleSheet.create({
-  textItem: {
-    color: "black",
-    width: 'auto',
+  buttonHintMess: {
+    width: "auto",
     borderColor: "white",
-    borderRadius: 30,
-    backgroundColor: "#5E56BD",
+    backgroundColor: "#7986CB",
     justifyContent: "center",
-    borderWidth:2,
-    fontSize:12,
-    padding:8,
-    
+    fontSize: 12,
+    padding: 8,
+    marginRight: 8,
+    marginLeft: 8,
+    borderWidth: 2,
+    borderRadius: 20,
+    height: 40,
+  },
+  textSendHintMessage: {
+    color: "white",
+    textAlign: "center",
   },
 });
 export default connect()(HintMessage)
